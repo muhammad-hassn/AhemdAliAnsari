@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+:root {
+  --color-ivory: #F7F3EC;
+  --color-ink: #14110F;
+  --color-stone: #8A8178;
+  --color-hairline: #E4DDD1;
+  --color-gold: #B08D57;
+  --color-burgundy: #5A1F2B;
+
+  --background: var(--color-ivory);
+  --foreground: var(--color-ink);
+}
+
+@theme {
+  --color-ivory: #F7F3EC;
+  --color-ink: #14110F;
+  --color-stone: #8A8178;
+  --color-hairline: #E4DDD1;
+  --color-gold: #B08D57;
+  --color-burgundy: #5A1F2B;
+
+  --font-serif: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-sans: var(--font-jost), "Jost", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+* {
+  border-radius: 0;
+  box-sizing: border-box;
+}
+
+html {
+  background-color: var(--color-ivory);
+  color: var(--color-ink);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--color-ivory);
+  color: var(--color-ink);
+  font-family: var(--font-sans), sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: var(--color-ink);
+  color: var(--color-ivory);
+}
+
+/* Luxury hairline borders & scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-ivory);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-hairline);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-stone);
+}
+
+/* Typography Helpers */
+.font-heading {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+
+.label-caps {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "src/app/**/{page,layout,loading,error,not-found,route}.{ts,tsx}",
+    "src/server/actions/**/*.ts",
+    "src/server/queries/**/*.ts",
+    "src/lib/supabase/client.ts",
+    "scripts/**/*.mjs"
+  ],
+  "project": [
+    "src/**/*.{ts,tsx}"
+  ],
+  "rules": {
+    "types": "off",
+    "exports": "off"
+  },
+  "ignoreDependencies": [
+    "@tailwindcss/turbopack",
+    "tailwindcss",
+    "@hookform/resolvers",
+    "react-hook-form"
+  ]
+}
