@@ -92,30 +92,56 @@ export function MediaLibraryClient({ initialAssets }: MediaLibraryClientProps) {
     const validTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
     const addedAssets: MediaAsset[] = [];
 
+    /** Safely parse JSON — returns null for non-JSON responses */
+    const safeJson = async (res: Response): Promise<Record<string, unknown> | null> => {
+      const ct = res.headers.get("content-type") || "";
+      if (!ct.includes("application/json")) return null;
+      try { return await res.json(); } catch { return null; }
+    };
+
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         if (!validTypes.includes(file.type.toLowerCase())) {
           throw new Error(`"${file.name}" is not a valid format. Only JPG, PNG, or WebP are supported.`);
         }
-        if (file.size > 15 * 1024 * 1024) {
-          throw new Error(`"${file.name}" exceeds 15MB limit.`);
+        // product-images bucket limit is 10 MB
+        if (file.size > 10 * 1024 * 1024) {
+          throw new Error(`"${file.name}" exceeds 10MB limit.`);
         }
 
         setBatchProgress(`Uploading ${i + 1} of ${files.length}: ${file.name}...`);
 
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("bucket", "product-images");
-
-        const res = await fetch("/api/admin/upload", {
+        // Step 1: Get a signed upload URL (JSON only — no binary passes through Next.js)
+        const urlRes = await fetch("/api/admin/upload-url", {
           method: "POST",
-          body: formData,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            bucket: "product-images",
+            fileName: file.name,
+            fileType: file.type,
+            fileSize: file.size,
+          }),
         });
 
-        const data = await res.json();
-        if (!res.ok || !data.success) {
-          throw new Error(data.error || `Failed to upload ${file.name}`);
+        const urlData = await safeJson(urlRes);
+        if (!urlRes.ok || !urlData?.success) {
+          throw new Error(
+            (urlData?.error as string) ||
+              `Server error ${urlRes.status}: could not start upload for ${file.name}`,
+          );
+        }
+
+        // Step 2: PUT file directly to Supabase Storage
+        const putRes = await fetch(urlData.signedUrl as string, {
+          method: "PUT",
+          headers: { "Content-Type": file.type },
+          body: file,
+        });
+
+        if (!putRes.ok) {
+          const errText = await putRes.text().catch(() => "");
+          throw new Error(errText || `Upload failed for ${file.name} (status ${putRes.status}).`);
         }
 
         const cleanName = file.name
@@ -126,7 +152,7 @@ export function MediaLibraryClient({ initialAssets }: MediaLibraryClientProps) {
         addedAssets.push({
           id: `media-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
           name: cleanName,
-          url: data.url,
+          url: urlData.publicUrl as string,
           alt: `${cleanName} - Ahmed Ali Ansari Couture`,
           size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
           created_at: new Date().toISOString(),

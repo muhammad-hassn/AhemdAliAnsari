@@ -18,7 +18,7 @@ export function SingleImageUploader({
   onChange,
   bucket = "hero-images",
   label = "Upload Image",
-  helperText = "Supports JPG, PNG, WebP up to 15MB. Stored persistently in cloud storage.",
+  helperText = "Supports JPG, PNG, WebP up to 10MB. Stored persistently in cloud storage.",
   aspectRatioClass = "aspect-[16/9]",
 }: SingleImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
@@ -26,39 +26,79 @@ export function SingleImageUploader({
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  /**
+   * Safely parse JSON from a Response — returns null if the body is not valid JSON
+   * (e.g. Supabase returns plain-text "Request Entity Too Large" for 413 errors).
+   */
+  const safeJson = async (res: Response): Promise<Record<string, unknown> | null> => {
+    const ct = res.headers.get("content-type") || "";
+    if (!ct.includes("application/json")) return null;
+    try {
+      return await res.json();
+    } catch {
+      return null;
+    }
+  };
+
   const handleFile = async (file: File) => {
     setError(null);
 
-    // Client-side validations
+    // Client-side validations — limits aligned to bucket configuration
     const validTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
     if (!validTypes.includes(file.type)) {
       setError("Please select a valid image file (JPG, PNG, or WebP).");
       return;
     }
 
-    if (file.size > 15 * 1024 * 1024) {
-      setError("File exceeds 15MB limit. Please choose a smaller image.");
+    // product-images bucket limit is 10 MB; hero-images is 20 MB
+    const bucketLimitMb = bucket === "hero-images" ? 20 : 10;
+    if (file.size > bucketLimitMb * 1024 * 1024) {
+      setError(`File exceeds the ${bucketLimitMb}MB limit. Please choose a smaller image.`);
       return;
     }
 
     try {
       setIsUploading(true);
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("bucket", bucket);
 
-      const res = await fetch("/api/admin/upload", {
+      // Step 1: Ask the server for a short-lived signed upload URL.
+      // The file metadata goes as JSON — no binary in this request.
+      const urlRes = await fetch("/api/admin/upload-url", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bucket,
+          fileName: file.name,
+          fileType: file.type,
+          fileSize: file.size,
+        }),
       });
 
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to upload image.");
+      const urlData = await safeJson(urlRes);
+      if (!urlRes.ok || !urlData?.success) {
+        const msg =
+          (urlData?.error as string) ||
+          `Server error ${urlRes.status}: could not start upload.`;
+        throw new Error(msg);
       }
 
-      onChange(data.url);
+      // Step 2: PUT the file directly to Supabase Storage using the signed URL.
+      // This never passes through Next.js so there is no body-size limit here.
+      const putRes = await fetch(urlData.signedUrl as string, {
+        method: "PUT",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+
+      if (!putRes.ok) {
+        // Supabase may return plain text for some errors
+        const errText = await putRes.text().catch(() => "");
+        throw new Error(
+          errText ||
+            `Upload failed with status ${putRes.status}. Please try again.`,
+        );
+      }
+
+      onChange(urlData.publicUrl as string);
     } catch (err) {
       console.error("Upload error:", err);
       setError(err instanceof Error ? err.message : "Error uploading file.");

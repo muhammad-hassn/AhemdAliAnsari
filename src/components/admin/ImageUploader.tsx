@@ -32,6 +32,19 @@ export function ImageUploader({
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  /**
+   * Safely parse JSON from a Response — returns null if the body is not valid JSON.
+   */
+  const safeJson = async (res: Response): Promise<Record<string, unknown> | null> => {
+    const ct = res.headers.get("content-type") || "";
+    if (!ct.includes("application/json")) return null;
+    try {
+      return await res.json();
+    } catch {
+      return null;
+    }
+  };
+
   const handleUploadFiles = async (files: FileList | File[]) => {
     setError(null);
     const fileArray = Array.from(files);
@@ -59,8 +72,9 @@ export function ImageUploader({
         setError(`"${f.name}" is not a valid format. Please choose JPG, PNG, or WebP.`);
         return;
       }
-      if (f.size > 15 * 1024 * 1024) {
-        setError(`"${f.name}" exceeds 15MB limit. Please choose smaller images.`);
+      // product-images bucket limit is 10 MB
+      if (f.size > 10 * 1024 * 1024) {
+        setError(`"${f.name}" exceeds 10MB limit. Please choose smaller images.`);
         return;
       }
       validFiles.push(f);
@@ -76,22 +90,41 @@ export function ImageUploader({
         const file = validFiles[i];
         setUploadProgress(`Uploading ${i + 1} of ${validFiles.length}: ${file.name}...`);
 
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("bucket", "product-images");
-
-        const res = await fetch("/api/admin/upload", {
+        // Step 1: Request a signed upload URL from the server (JSON only — no binary)
+        const urlRes = await fetch("/api/admin/upload-url", {
           method: "POST",
-          body: formData,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            bucket: "product-images",
+            fileName: file.name,
+            fileType: file.type,
+            fileSize: file.size,
+          }),
         });
 
-        const data = await res.json();
-
-        if (!res.ok || !data.success) {
-          throw new Error(data.error || `Failed to upload ${file.name}`);
+        const urlData = await safeJson(urlRes);
+        if (!urlRes.ok || !urlData?.success) {
+          const msg =
+            (urlData?.error as string) ||
+            `Server error ${urlRes.status}: could not start upload for ${file.name}.`;
+          throw new Error(msg);
         }
 
-        newUrls.push(data.url);
+        // Step 2: PUT the file directly to Supabase — bypasses Next.js entirely
+        const putRes = await fetch(urlData.signedUrl as string, {
+          method: "PUT",
+          headers: { "Content-Type": file.type },
+          body: file,
+        });
+
+        if (!putRes.ok) {
+          const errText = await putRes.text().catch(() => "");
+          throw new Error(
+            errText || `Upload failed for ${file.name} (status ${putRes.status}).`,
+          );
+        }
+
+        newUrls.push(urlData.publicUrl as string);
       }
 
       onChange([...images, ...newUrls]);

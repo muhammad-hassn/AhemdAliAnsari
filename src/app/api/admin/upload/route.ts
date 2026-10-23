@@ -8,10 +8,10 @@ const ALLOWED_MIME_TYPES = new Set([
   "image/jpg",
   "image/png",
   "image/webp",
-  "image/gif",
 ]);
 
-const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024; // 15MB
+// Conservative limit — must not exceed the smallest bucket's configured file_size_limit (10 MB).
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 
 const ALLOWED_BUCKETS = new Set(["hero-images", "promotions", "product-images"]);
 
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: `File size exceeds the 15MB limit (current: ${(file.size / (1024 * 1024)).toFixed(1)}MB).`,
+          error: `File size exceeds the 10MB limit (current: ${(file.size / (1024 * 1024)).toFixed(1)}MB).`,
         },
         { status: 400 },
       );
