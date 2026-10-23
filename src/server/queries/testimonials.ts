@@ -1,10 +1,11 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
 import { createPublicClient } from "@/lib/supabase/server";
 import type { Testimonial } from "@/types";
 import { SEED_TESTIMONIALS } from "./seed-data";
 
-export async function getActiveTestimonials(): Promise<Testimonial[]> {
+async function fetchActiveTestimonials(): Promise<Testimonial[]> {
   try {
     const supabase = createPublicClient();
     const { data, error } = await supabase
@@ -20,3 +21,9 @@ export async function getActiveTestimonials(): Promise<Testimonial[]> {
     return SEED_TESTIMONIALS;
   }
 }
+
+export const getActiveTestimonials = unstable_cache(
+  fetchActiveTestimonials,
+  ["testimonials"],
+  { tags: ["testimonials"], revalidate: 3600 },
+);

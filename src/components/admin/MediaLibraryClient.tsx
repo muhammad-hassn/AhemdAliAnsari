@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { Search, Copy, Check, Trash2, Upload } from "lucide-react";
+import { Search, Copy, Check, Trash2, Upload, Loader2, AlertCircle, Plus } from "lucide-react";
 import { ConfirmDialog } from "./ConfirmDialog";
+import { SingleImageUploader } from "./SingleImageUploader";
 
 export interface MediaAsset {
   id: string;
@@ -18,16 +19,54 @@ interface MediaLibraryClientProps {
   initialAssets: MediaAsset[];
 }
 
+const STORAGE_KEY = "ahmed_ali_ansari_media_library_v1";
+
 export function MediaLibraryClient({ initialAssets }: MediaLibraryClientProps) {
   const [assets, setAssets] = useState<MediaAsset[]>(initialAssets);
   const [search, setSearch] = useState("");
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const [deletingAsset, setDeletingAsset] = useState<MediaAsset | null>(null);
+
+  // Upload modal state
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [newAssetUrl, setNewAssetUrl] = useState("");
   const [newAssetAlt, setNewAssetAlt] = useState("");
   const [newAssetName, setNewAssetName] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  // Direct batch upload state
+  const [isBatchUploading, setIsBatchUploading] = useState(false);
+  const [batchProgress, setBatchProgress] = useState("");
+  const directInputRef = useRef<HTMLInputElement>(null);
+
+  // Load any previously uploaded assets saved locally
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed: MediaAsset[] = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Merge avoiding duplicates by id or url
+          setAssets((prev) => {
+            const existingUrls = new Set(prev.map((a) => a.url));
+            const fresh = parsed.filter((a) => !existingUrls.has(a.url));
+            return [...fresh, ...prev];
+          });
+        }
+      }
+    } catch {
+      // Ignore localStorage errors
+    }
+  }, []);
+
+  const persistAssets = (newAssets: MediaAsset[]) => {
+    setAssets(newAssets);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newAssets));
+    } catch {
+      // Ignore
+    }
+  };
 
   const filteredAssets = assets.filter(
     (a) =>
@@ -42,10 +81,81 @@ export function MediaLibraryClient({ initialAssets }: MediaLibraryClientProps) {
     setTimeout(() => setCopiedUrl(null), 2000);
   };
 
-  const handleAddAsset = (e: React.FormEvent) => {
+  // Direct file batch upload from top bar button
+  const handleDirectFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setError(null);
+    setIsBatchUploading(true);
+
+    const validTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+    const addedAssets: MediaAsset[] = [];
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (!validTypes.includes(file.type.toLowerCase())) {
+          throw new Error(`"${file.name}" is not a valid format. Only JPG, PNG, or WebP are supported.`);
+        }
+        if (file.size > 15 * 1024 * 1024) {
+          throw new Error(`"${file.name}" exceeds 15MB limit.`);
+        }
+
+        setBatchProgress(`Uploading ${i + 1} of ${files.length}: ${file.name}...`);
+
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("bucket", "product-images");
+
+        const res = await fetch("/api/admin/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || `Failed to upload ${file.name}`);
+        }
+
+        const cleanName = file.name
+          .replace(/\.[^/.]+$/, "")
+          .replace(/[-_]+/g, " ")
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+
+        addedAssets.push({
+          id: `media-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+          name: cleanName,
+          url: data.url,
+          alt: `${cleanName} - Ahmed Ali Ansari Couture`,
+          size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+          created_at: new Date().toISOString(),
+        });
+      }
+
+      persistAssets([...addedAssets, ...assets]);
+      setError(null);
+    } catch (err) {
+      console.error("Media upload error:", err);
+      setError(err instanceof Error ? err.message : "Failed to upload image.");
+    } finally {
+      setIsBatchUploading(false);
+      setBatchProgress("");
+      if (directInputRef.current) {
+        directInputRef.current.value = "";
+      }
+    }
+  };
+
+  // Add asset from modal (with custom title and alt)
+  const handleModalSave = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newAssetUrl.trim() || !newAssetAlt.trim()) {
-      setError("Both Image URL and descriptive Alt Text are strictly required.");
+    if (!newAssetUrl.trim()) {
+      setError("Please browse and upload an image file first.");
+      return;
+    }
+    if (!newAssetAlt.trim()) {
+      setError("Descriptive alt text is required for accessibility and SEO.");
       return;
     }
 
@@ -57,7 +167,7 @@ export function MediaLibraryClient({ initialAssets }: MediaLibraryClientProps) {
       created_at: new Date().toISOString(),
     };
 
-    setAssets((prev) => [created, ...prev]);
+    persistAssets([created, ...assets]);
     setNewAssetUrl("");
     setNewAssetAlt("");
     setNewAssetName("");
@@ -67,15 +177,36 @@ export function MediaLibraryClient({ initialAssets }: MediaLibraryClientProps) {
 
   const handleDelete = () => {
     if (!deletingAsset) return;
-    setAssets((prev) => prev.filter((a) => a.id !== deletingAsset.id));
+    persistAssets(assets.filter((a) => a.id !== deletingAsset.id));
     setDeletingAsset(null);
   };
 
   return (
     <div className="space-y-6">
+      {/* Hidden browser file input for fast 1-tap/1-click upload */}
+      <input
+        ref={directInputRef}
+        type="file"
+        multiple
+        accept="image/jpeg,image/png,image/webp,image/jpg"
+        onChange={handleDirectFiles}
+        className="hidden"
+        id="media-library-browser-input"
+        disabled={isBatchUploading}
+      />
+
       {error && (
-        <div className="p-3 text-xs bg-red-50 text-red-800 border border-red-200">
-          {error}
+        <div className="p-3 text-xs bg-red-50 text-red-800 border border-red-200 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      {/* Uploading progress notification */}
+      {isBatchUploading && (
+        <div className="p-3 bg-stone-900 text-white text-xs flex items-center gap-3 shadow-md animate-pulse">
+          <Loader2 className="w-4 h-4 animate-spin text-stone-200" />
+          <span>{batchProgress}</span>
         </div>
       )}
 
@@ -92,20 +223,51 @@ export function MediaLibraryClient({ initialAssets }: MediaLibraryClientProps) {
           />
         </div>
 
-        <button
-          onClick={() => setUploadModalOpen(true)}
-          className="inline-flex items-center gap-1.5 px-4 py-2 bg-stone-900 text-white text-xs uppercase tracking-wider font-medium hover:bg-stone-800 transition-colors"
-        >
-          <Upload className="w-3.5 h-3.5" />
-          Add Media Asset
-        </button>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          {/* Direct browser file upload button */}
+          <button
+            type="button"
+            disabled={isBatchUploading}
+            onClick={() => directInputRef.current?.click()}
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-stone-900 text-white text-xs uppercase tracking-wider font-medium hover:bg-stone-800 transition-colors disabled:opacity-50 cursor-pointer"
+          >
+            {isBatchUploading ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                Uploading...
+              </>
+            ) : (
+              <>
+                <Upload className="w-3.5 h-3.5" />
+                Upload from Device
+              </>
+            )}
+          </button>
+
+          {/* Add with details button */}
+          <button
+            type="button"
+            onClick={() => {
+              setNewAssetUrl("");
+              setNewAssetName("");
+              setNewAssetAlt("");
+              setError(null);
+              setUploadModalOpen(true);
+            }}
+            className="inline-flex items-center justify-center gap-1 px-3 py-2 border border-stone-300 text-stone-700 hover:text-stone-900 hover:border-stone-900 text-xs uppercase tracking-wider transition-colors cursor-pointer"
+            title="Upload with custom Alt Text & Title"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">With Details</span>
+          </button>
+        </div>
       </div>
 
       {/* Media Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {filteredAssets.length === 0 ? (
           <div className="col-span-full py-12 text-center text-stone-400 bg-white border border-stone-200">
-            No media assets found.
+            No media assets found. Tap &ldquo;Upload from Device&rdquo; above to browse images from your mobile or laptop.
           </div>
         ) : (
           filteredAssets.map((asset) => (
@@ -153,7 +315,7 @@ export function MediaLibraryClient({ initialAssets }: MediaLibraryClientProps) {
 
                 <button
                   onClick={() => setDeletingAsset(asset)}
-                  className="p-1 text-stone-400 hover:text-red-600 transition-colors"
+                  className="p-1 text-stone-400 hover:text-red-600 transition-colors cursor-pointer"
                   title="Delete media"
                 >
                   <Trash2 className="w-3 h-3" />
@@ -164,16 +326,46 @@ export function MediaLibraryClient({ initialAssets }: MediaLibraryClientProps) {
         )}
       </div>
 
-      {/* Add Media Modal */}
+      {/* Add Media Modal with Browser File Uploader (ZERO URL typing) */}
       {uploadModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white border border-stone-200 w-full max-w-md p-6 space-y-4">
-            <h3 className="font-serif text-xl text-stone-900">Add Media Asset</h3>
+          <div className="bg-white border border-stone-200 w-full max-w-lg p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div>
+              <h3 className="font-serif text-xl text-stone-900">Upload Media Asset</h3>
+              <p className="text-xs text-stone-500 mt-0.5">
+                Select an image file from your computer or mobile storage.
+              </p>
+            </div>
 
-            <form onSubmit={handleAddAsset} className="space-y-4">
+            <form onSubmit={handleModalSave} className="space-y-4">
+              {/* Browser File Upload Component */}
+              <div>
+                <SingleImageUploader
+                  value={newAssetUrl}
+                  onChange={(url) => {
+                    setNewAssetUrl(url);
+                    if (url && !newAssetName) {
+                      const fileName = url.split("/").pop() || "image";
+                      const clean = fileName
+                        .replace(/\.[^/.]+$/, "")
+                        .replace(/[-_]+/g, " ")
+                        .replace(/\b\w/g, (c) => c.toUpperCase());
+                      setNewAssetName(clean);
+                    }
+                    if (url && !newAssetAlt) {
+                      setNewAssetAlt("Ahmed Ali Ansari luxury couture garment detail");
+                    }
+                  }}
+                  bucket="product-images"
+                  label="Select Image File *"
+                  helperText="Tap or click to browse image from mobile camera, gallery, or laptop. JPG, PNG, WebP up to 15MB."
+                  aspectRatioClass="aspect-[4/3] max-w-full"
+                />
+              </div>
+
               <div>
                 <label className="block text-xs font-medium text-stone-700 uppercase tracking-wider mb-1">
-                  Asset Title / File Name
+                  Asset Title
                 </label>
                 <input
                   type="text"
@@ -181,20 +373,6 @@ export function MediaLibraryClient({ initialAssets }: MediaLibraryClientProps) {
                   onChange={(e) => setNewAssetName(e.target.value)}
                   className="w-full text-xs px-3 py-2 border border-stone-200 bg-white focus:outline-none focus:border-stone-900"
                   placeholder="e.g. Ivory Silk Peshwas Detail"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-stone-700 uppercase tracking-wider mb-1">
-                  Public Image URL *
-                </label>
-                <input
-                  type="url"
-                  required
-                  value={newAssetUrl}
-                  onChange={(e) => setNewAssetUrl(e.target.value)}
-                  className="w-full text-xs px-3 py-2 border border-stone-200 bg-white focus:outline-none focus:border-stone-900 font-mono"
-                  placeholder="https://... or /images/..."
                 />
               </div>
 
@@ -219,13 +397,14 @@ export function MediaLibraryClient({ initialAssets }: MediaLibraryClientProps) {
                 <button
                   type="button"
                   onClick={() => setUploadModalOpen(false)}
-                  className="px-4 py-2 border border-stone-200 text-stone-700 text-xs uppercase tracking-wider hover:bg-stone-50"
+                  className="px-4 py-2 border border-stone-200 text-stone-700 text-xs uppercase tracking-wider hover:bg-stone-50 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-stone-900 text-white text-xs uppercase tracking-wider font-medium hover:bg-stone-800"
+                  disabled={!newAssetUrl}
+                  className="px-5 py-2 bg-stone-900 text-white text-xs uppercase tracking-wider font-medium hover:bg-stone-800 disabled:opacity-40 cursor-pointer"
                 >
                   Save to Library
                 </button>

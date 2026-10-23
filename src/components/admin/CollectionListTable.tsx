@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -17,13 +17,32 @@ interface CollectionListTableProps {
 
 export function CollectionListTable({ collections }: CollectionListTableProps) {
   const router = useRouter();
+  const [items, setItems] = useState<Collection[]>(collections);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    setItems(collections);
+  }, [collections]);
 
   const handleDelete = async () => {
     if (!deleteTargetId) return;
-    await deleteCollectionAction(deleteTargetId);
-    setDeleteTargetId(null);
-    router.refresh();
+    setIsDeleting(true);
+    try {
+      const res = await deleteCollectionAction(deleteTargetId);
+      if (!res.success) {
+        alert(res.error || "Failed to delete collection");
+        setIsDeleting(false);
+        return;
+      }
+      setItems((prev) => prev.filter((item) => item.id !== deleteTargetId));
+      setDeleteTargetId(null);
+      router.refresh();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Error deleting collection");
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const columns: Column<Collection>[] = [
@@ -111,7 +130,7 @@ export function CollectionListTable({ collections }: CollectionListTableProps) {
   return (
     <>
       <DataTable
-        data={collections as unknown as Record<string, unknown>[]}
+        data={items as unknown as Record<string, unknown>[]}
         columns={columns as unknown as Column<Record<string, unknown>>[]}
         searchKey="name"
         searchPlaceholder="Search collections..."

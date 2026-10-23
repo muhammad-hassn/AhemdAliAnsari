@@ -17,7 +17,7 @@ import type {
 export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
   const supabase = await createClient();
 
-  const [ordersRes, lowStockRes, topProductsRes] = await Promise.all([
+  const [ordersRes, lowStockRes, topProductsRes, allOrdersRes] = await Promise.all([
     supabase
       .from("orders")
       .select("*")
@@ -33,16 +33,16 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
       .from("order_items")
       .select("product_id, product_name, price_pkr, quantity")
       .limit(100),
+    supabase
+      .from("orders")
+      .select("total_pkr, status"),
   ]);
 
   const recentOrders = (ordersRes.data as unknown as Order[]) || [];
 
-  const { data: allOrders } = await supabase
-    .from("orders")
-    .select("total_pkr, status");
-
   let totalRevenuePkr = 0;
   let pendingOrdersCount = 0;
+  const allOrders = allOrdersRes.data;
   const ordersCount = allOrders?.length || 0;
 
   if (allOrders) {
@@ -218,7 +218,8 @@ export async function getAdminOrderById(id: string): Promise<Order | null> {
       `
       *,
       items:order_items(*),
-      events:order_events(*)
+      events:order_events(*),
+      proofs:payment_proofs(*)
     `,
     )
     .eq("id", id)

@@ -9,6 +9,8 @@ import { getProducts } from "@/server/queries/products";
 import { BlogShareButtons } from "@/components/blog/BlogShareButtons";
 import { BlogTableOfContents } from "@/components/blog/BlogTableOfContents";
 
+export const revalidate = 3600;
+
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
 }

@@ -57,14 +57,13 @@ src/
 │   │   ├── refund/page.tsx
 │   │   ├── terms/page.tsx
 │   │   ├── shipping/page.tsx
-│   │   ├── blog/...          # Part 3
+│   │   ├── blog/...
 │   │   ├── not-found.tsx
 │   │   ├── loading.tsx
 │   │   └── error.tsx
-│   ├── (admin)/              # Part 3
-│   │   └── admin/...
-│   └── auth/
+│   ├── auth/
 │       └── callback/route.ts
+│   ├── admin/...
 ├── components/
 │   ├── ui/                   # Primitives (Button, Input, Badge, etc.)
 │   ├── layout/               # Header, Footer, MobileMenu, AnnouncementBar
@@ -75,7 +74,7 @@ src/
 │   ├── cart/                  # CartDrawer, CartItem, etc.
 │   ├── account/              # ProfileForm, OrderList, AddressForm, etc.
 │   ├── checkout/             # CheckoutForm, PaymentMethods, OrderSummary, etc.
-│   └── admin/                # Part 3
+│   └── admin/
 ├── content/                  # Typed content (FAQs, etc.)
 ├── lib/
 │   ├── supabase/             # Client/server Supabase helpers
@@ -99,8 +98,8 @@ src/
 
 supabase/
 ├── migrations/
-│   ├── 0001_init.sql         # Part 1 tables
-│   └── 0002_commerce.sql     # Part 2 tables
+│   ├── 0001_init.sql
+│   └── 0002_commerce.sql
 └── seed.sql
 ```
 

@@ -1,16 +1,16 @@
 # PROJECT OVERVIEW
 
 ## Brand
-Pakistani luxury Eastern-wear (embroidered formal wear) e-commerce brand.
+**Ali Ahmed Ansari** — Pakistani luxury Eastern-wear (embroidered formal wear, kurtis, and premium fabrics) e-commerce brand.
 Premium editorial aesthetic — NOT playful, NOT minimal-modern-startup. Think luxury fashion house.
 
 ## Tech Stack
 | Layer | Tool |
 |---|---|
-| Framework | Next.js (latest stable, App Router) |
+| Framework | Next.js 16 (App Router, Turbopack) |
 | Language | TypeScript strict |
 | Package Manager | pnpm |
-| CSS | Tailwind CSS v4 + shadcn/ui (restyled to brand tokens) |
+| CSS | Tailwind CSS v4 + custom design tokens |
 | Database | Supabase (Postgres + Storage) via `@supabase/ssr` |
 | Animation | `motion` package + `lenis` (smooth scroll) |
 | State | zustand (cart/wishlist/currency, persisted) |
@@ -18,57 +18,45 @@ Premium editorial aesthetic — NOT playful, NOT minimal-modern-startup. Think l
 | Icons | lucide-react (thin-stroke only) |
 | Email | Resend |
 | Forms | react-hook-form + zod |
-| Rich Text | Tiptap (admin only, Part 3) |
-| Charts | recharts (admin only, Part 3) |
+| Rich Text | Tiptap (admin only) |
+| Charts | recharts (admin only) |
 | Linting | ESLint + Prettier + knip |
+| Image Storage | Supabase Storage (hero-images, product-images, promotions buckets) |
+| Image Upload | Direct browser file picker → `/api/admin/upload` → Supabase Storage |
 
-## Build Order
+## Project Status
+All three build phases are **COMPLETE**:
+- ✅ Part 1 — Storefront Foundation (Home, Shop, Product, Cart, Wishlist, Currency)
+- ✅ Part 2 — Commerce & Content (Auth, Checkout, Orders, Payment, Contact, Policies)
+- ✅ Part 3 — Admin CMS, Blog, Full SEO (Admin panel, Blog, Media Library, SEO)
 
-### Part 1 — Storefront Foundation
-- Stack setup, design system, motion primitives
-- Database: collections, products, currency_rates, testimonials, site_settings, hero_slides, navigation_items, pages
-- Pages: Home, Shop, Product, Cart drawer, Wishlist, Currency switcher
-- Status: **NOT STARTED**
-
-### Part 2 — Commerce & Content
-- Database: profiles, addresses, wishlist_items, product_stock, shipping_rates, payment_methods, orders, order_items, order_events, payment_proofs, contact_messages, subscribers, rate_limits
-- Auth (email+password, magic link), Account pages
-- Checkout (guest allowed), Orders, Payment proof upload, Order tracking
-- Content pages: About, Contact, Privacy, Refund, Terms, Shipping
-- Newsletter, 404, error states
-- Status: **NOT STARTED**
-
-### Part 3 — Admin CMS, Blog, Full SEO
-- Admin panel (roles: admin, editor)
-- Blog system (posts, categories, tags, authors)
-- Full SEO (JSON-LD, OG images, sitemap, robots, redirects)
-- Media library, Navigation manager, Site settings editor
-- Audit log, Homepage manager, Pages manager
-- Status: **NOT STARTED**
-
-## Definition of Done (every part)
-All of these must pass with zero errors before a part is considered complete:
+## Build Verification
 ```bash
-pnpm lint
-pnpm typecheck
-pnpm build
-pnpm knip
+pnpm typecheck   # zero errors
+pnpm build       # successful
 ```
-No TODOs, no console.log, no placeholder lorem, no commented-out code, no unused code/deps/exports.
 
-## Env Vars (cumulative)
+## Env Vars
 ```env
-# Part 1
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
-
-# Part 2
 SUPABASE_SERVICE_ROLE_KEY=
 RESEND_API_KEY=
 EMAIL_FROM=
 ADMIN_NOTIFY_EMAIL=
 NEXT_PUBLIC_SITE_URL=
-
-# Part 3
-# (none additional expected)
 ```
+
+## Brand Constants (src/lib/constants.ts)
+```
+SITE_NAME = "Ahmed Ali Ansari"
+WHATSAPP_NUMBER = "+923092045906"
+CONTACT_EMAIL = "aahmedaliansariofficial@gmail.com"
+INSTAGRAM = "https://instagram.com/ahmedaliansari.official"
+```
+
+## Key Admin Features
+- All image uploads use direct browser file picker (no manual URL input)
+- Homepage carousel, products, collections, media library, blog — all upload via device browser
+- Upload API: `/api/admin/upload` → Supabase Storage buckets (hero-images, product-images, promotions)
+- Roles: admin (full access), editor (blog, pages, media only)

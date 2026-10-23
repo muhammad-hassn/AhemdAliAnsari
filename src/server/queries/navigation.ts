@@ -1,12 +1,11 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
 import { createPublicClient } from "@/lib/supabase/server";
 import type { NavigationItem } from "@/types";
 import { SEED_NAV_ITEMS } from "./seed-data";
 
-export async function getNavigationItems(
-  location?: "header" | "footer",
-): Promise<NavigationItem[]> {
+async function fetchNavigationItems(location?: "header" | "footer"): Promise<NavigationItem[]> {
   try {
     const supabase = createPublicClient();
     let query = supabase
@@ -32,4 +31,12 @@ export async function getNavigationItems(
       ? SEED_NAV_ITEMS.filter((i) => i.location === location && i.is_active)
       : SEED_NAV_ITEMS.filter((i) => i.is_active);
   }
+}
+
+export function getNavigationItems(location?: "header" | "footer"): Promise<NavigationItem[]> {
+  // Cache separately per location so header and footer don't share a key
+  return unstable_cache(fetchNavigationItems, ["navigation", location ?? "all"], {
+    tags: ["navigation"],
+    revalidate: 3600,
+  })(location);
 }

@@ -314,7 +314,7 @@ export function CheckoutForm({
           </div>
         </div>
 
-        {/* Section 3: Payment Option (Full vs 50% Deposit) */}
+        {/* Section 3: Payment Terms */}
         <div className="space-y-4">
           <h2 className="font-serif text-2xl text-ink">3. Payment Terms</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -328,15 +328,18 @@ export function CheckoutForm({
             >
               <div className="flex justify-between items-center mb-1">
                 <span className="font-serif text-base text-ink font-medium">Full Payment</span>
-                <span className="text-xs font-sans text-emerald-800 bg-emerald-50 px-2 py-0.5">100%</span>
+                <span className="text-xs font-sans text-emerald-800 bg-emerald-50 px-2 py-0.5">100% Settle</span>
               </div>
-              <p className="text-xs text-stone">
-                Settle the total invoice now. Smooth dispatch directly upon completion.
+              <p className="text-xs text-stone leading-relaxed">
+                Pay 100% of the invoice via manual bank transfer or standard payment. Smooth dispatch upon craftsmanship completion.
               </p>
             </div>
 
             <div
-              onClick={() => setPaymentOption("deposit")}
+              onClick={() => {
+                setPaymentOption("deposit");
+                setSelectedMethodCode("bank_transfer");
+              }}
               className={`p-4 border cursor-pointer transition-all ${
                 paymentOption === "deposit"
                   ? "border-ink bg-stone-light/30 ring-1 ring-ink"
@@ -344,11 +347,11 @@ export function CheckoutForm({
               }`}
             >
               <div className="flex justify-between items-center mb-1">
-                <span className="font-serif text-base text-ink font-medium">Bespoke 50% Deposit</span>
+                <span className="font-serif text-base text-ink font-medium">50% Advance + 50% COD</span>
                 <span className="text-xs font-sans text-amber-800 bg-amber-50 px-2 py-0.5">50% Advance</span>
               </div>
-              <p className="text-xs text-stone">
-                Pay 50% deposit now to initiate tailoring. The remaining 50% is due prior to final delivery.
+              <p className="text-xs text-stone leading-relaxed">
+                Pay 50% advance via manual bank transfer to commence atelier tailoring. The remaining 50% balance is collected in cash upon delivery.
               </p>
             </div>
           </div>
@@ -356,35 +359,51 @@ export function CheckoutForm({
 
         {/* Section 4: Payment Method */}
         <div className="space-y-4">
-          <h2 className="font-serif text-2xl text-ink">4. Payment Method</h2>
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="font-serif text-2xl text-ink">4. Payment Method</h2>
+            {paymentOption === "deposit" && (
+              <span className="text-xs text-amber-800 font-sans">
+                Advance deposit is collected via Manual Bank Transfer
+              </span>
+            )}
+          </div>
+
           <div className="space-y-3">
-            {availablePaymentMethods.map((method) => (
-              <label
-                key={method.id}
-                className={`flex flex-col p-4 border cursor-pointer transition-colors ${
-                  selectedMethodCode === method.code
-                    ? "border-ink bg-stone-light/30 ring-1 ring-ink"
-                    : "border-stone-light bg-cream hover:border-stone"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value={method.code}
-                    checked={selectedMethodCode === method.code}
-                    onChange={() => setSelectedMethodCode(method.code)}
-                    className="accent-ink"
-                  />
-                  <span className="font-sans text-sm font-medium text-ink">
-                    {method.name}
-                  </span>
-                </div>
-                <p className="text-xs text-stone mt-2 pl-6 whitespace-pre-line leading-relaxed">
-                  {method.instructions}
-                </p>
-              </label>
-            ))}
+            {availablePaymentMethods.map((method) => {
+              const isSelected = selectedMethodCode === method.code;
+              return (
+                <label
+                  key={method.id}
+                  className={`flex flex-col p-4 border cursor-pointer transition-colors ${
+                    isSelected
+                      ? "border-ink bg-stone-light/30 ring-1 ring-ink"
+                      : "border-stone-light bg-cream hover:border-stone"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value={method.code}
+                      checked={isSelected}
+                      onChange={() => setSelectedMethodCode(method.code)}
+                      className="accent-ink"
+                    />
+                    <span className="font-sans text-sm font-medium text-ink">
+                      {method.name}
+                    </span>
+                    {method.code === "bank_transfer" && (
+                      <span className="text-[10px] uppercase font-sans tracking-wider bg-stone-100 text-stone-700 px-2 py-0.5 ml-auto border border-stone-200">
+                        Manual Transfer + Receipt Upload
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-stone mt-2 pl-6 whitespace-pre-line leading-relaxed">
+                    {method.instructions}
+                  </p>
+                </label>
+              );
+            })}
           </div>
         </div>
 
@@ -463,17 +482,20 @@ export function CheckoutForm({
             </div>
           )}
 
-          {/* Deposit breakdown if applicable */}
+          {/* Deposit / Advance breakdown if applicable */}
           {paymentOption === "deposit" && (
-            <div className="p-3 bg-amber-50/80 border border-amber-200/80 space-y-1.5 text-xs text-amber-900 mt-3">
-              <div className="flex justify-between font-semibold">
-                <span>Deposit Payable Now:</span>
-                <span>Rs. {pricing.deposit_amount_pkr.toLocaleString()}</span>
+            <div className="p-4 bg-amber-50/90 border border-amber-200/90 space-y-2 text-xs text-amber-950 mt-3">
+              <div className="flex justify-between font-semibold border-b border-amber-200/60 pb-1.5">
+                <span>50% Advance (Payable Now via Bank):</span>
+                <span className="font-mono">Rs. {pricing.deposit_amount_pkr.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between text-stone">
-                <span>Balance Due Upon Completion:</span>
-                <span>Rs. {pricing.balance_amount_pkr.toLocaleString()}</span>
+              <div className="flex justify-between text-stone-700">
+                <span>Remaining 50% Balance (Cash on Delivery):</span>
+                <span className="font-mono">Rs. {pricing.balance_amount_pkr.toLocaleString()}</span>
               </div>
+              <p className="text-[11px] text-amber-800 pt-1 leading-normal">
+                After placing this order, you will submit your bank transfer receipt & transaction ID for the 50% advance. The remaining balance is payable in cash upon courier delivery.
+              </p>
             </div>
           )}
         </div>
@@ -486,12 +508,12 @@ export function CheckoutForm({
           {loading
             ? "Authorizing Order..."
             : paymentOption === "deposit"
-              ? `Confirm & Pay Deposit (Rs. ${pricing.deposit_amount_pkr.toLocaleString()})`
+              ? `Place Order & Pay 50% Advance (Rs. ${pricing.deposit_amount_pkr.toLocaleString()})`
               : `Place Order (Rs. ${pricing.total_pkr.toLocaleString()})`}
         </Button>
 
         <p className="text-[10px] text-center text-stone leading-tight">
-          By placing your order, you agree to Zahra Luxe&apos;s Terms of Service and Bespoke Couture Policy.
+          By placing your order, you agree to Ahmed Ali Ansari&apos;s Terms of Service and Couture Policy.
         </p>
       </div>
     </form>

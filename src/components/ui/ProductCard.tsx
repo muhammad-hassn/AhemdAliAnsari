@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, Eye } from "lucide-react";
@@ -9,6 +9,8 @@ import { Price } from "@/components/ui/Price";
 import { Badge } from "@/components/ui/Badge";
 import { useWishlistStore } from "@/store/use-wishlist-store";
 import { cn } from "@/lib/utils";
+
+const emptySubscribe = () => () => {};
 
 interface ProductCardProps {
   product: Product;
@@ -24,7 +26,13 @@ export function ProductCard({
   priority = false,
 }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const isInWishlist = useWishlistStore((state) => state.isInWishlist(product.id));
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
+  const inWishlistRaw = useWishlistStore((state) => state.isInWishlist(product.id));
+  const isInWishlist = mounted && inWishlistRaw;
   const toggleWishlist = useWishlistStore((state) => state.toggleWishlist);
 
   const primaryImage = product.images[0] ?? "/images/placeholder-product.jpg";

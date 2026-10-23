@@ -37,7 +37,7 @@ const DEFAULT_MEDIA_ASSETS: MediaAsset[] = [
     id: "media-5",
     name: "Atelier Bridal Hero Banner",
     url: "/images/hero-1.jpg",
-    alt: "Zahra Luxe Couture Bridal Campaign featuring royal embroidered silhouettes",
+    alt: "Ahmed Ali Ansari Couture Bridal Campaign featuring royal embroidered silhouettes",
     size: "2.3 MB",
     created_at: new Date().toISOString(),
   },

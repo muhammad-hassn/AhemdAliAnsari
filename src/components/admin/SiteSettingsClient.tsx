@@ -194,6 +194,92 @@ export function SiteSettingsClient({ initialSettings }: SiteSettingsClientProps)
         </div>
       </FormSection>
 
+      {/* Bank Account & Manual Transfer */}
+      <FormSection
+        title="Bank Account & Manual Transfer"
+        description="Official bank account details displayed to clients for manual bank transfers and 50% advance deposits."
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-medium text-stone-700 uppercase tracking-wider mb-1">
+              Bank Name
+            </label>
+            <input
+              type="text"
+              value={settings.bank_name || ""}
+              onChange={(e) => handleChange("bank_name", e.target.value)}
+              className="w-full text-xs px-3 py-2 border border-stone-200 bg-white focus:outline-none focus:border-stone-900"
+              placeholder="e.g. Meezan Bank Limited"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-stone-700 uppercase tracking-wider mb-1">
+              Account Title
+            </label>
+            <input
+              type="text"
+              value={settings.bank_account_title || ""}
+              onChange={(e) => handleChange("bank_account_title", e.target.value)}
+              className="w-full text-xs px-3 py-2 border border-stone-200 bg-white focus:outline-none focus:border-stone-900"
+              placeholder="e.g. Ahmed Ali Ansari"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-stone-700 uppercase tracking-wider mb-1">
+              Account Number
+            </label>
+            <input
+              type="text"
+              value={settings.bank_account_number || ""}
+              onChange={(e) => handleChange("bank_account_number", e.target.value)}
+              className="w-full text-xs px-3 py-2 border border-stone-200 bg-white focus:outline-none focus:border-stone-900 font-mono"
+              placeholder="e.g. 0101-0105849301"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-stone-700 uppercase tracking-wider mb-1">
+              IBAN Number
+            </label>
+            <input
+              type="text"
+              value={settings.bank_iban || ""}
+              onChange={(e) => handleChange("bank_iban", e.target.value)}
+              className="w-full text-xs px-3 py-2 border border-stone-200 bg-white focus:outline-none focus:border-stone-900 font-mono"
+              placeholder="e.g. PK36MEZN0001010105849301"
+            />
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="block text-xs font-medium text-stone-700 uppercase tracking-wider mb-1">
+              Branch & City (Optional)
+            </label>
+            <input
+              type="text"
+              value={settings.bank_branch || ""}
+              onChange={(e) => handleChange("bank_branch", e.target.value)}
+              className="w-full text-xs px-3 py-2 border border-stone-200 bg-white focus:outline-none focus:border-stone-900"
+              placeholder="e.g. Main Gulberg Branch, Lahore"
+            />
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="block text-xs font-medium text-stone-700 uppercase tracking-wider mb-1">
+              Transfer Instructions for Customers
+            </label>
+            <textarea
+              rows={3}
+              value={settings.bank_transfer_instructions || ""}
+              onChange={(e) => handleChange("bank_transfer_instructions", e.target.value)}
+              className="w-full text-xs px-3 py-2 border border-stone-200 bg-white focus:outline-none focus:border-stone-900 leading-relaxed"
+              placeholder="Instructions displayed to customers during checkout and on the order confirmation page..."
+            />
+          </div>
+        </div>
+      </FormSection>
+
       {/* Analytics & Tracking */}
       <FormSection
         title="Analytics & Tracking"

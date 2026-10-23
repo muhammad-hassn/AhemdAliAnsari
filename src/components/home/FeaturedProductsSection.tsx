@@ -47,6 +47,7 @@ export function FeaturedProductsSection({
             <div className="flex flex-wrap items-center gap-2 border-b border-hairline pb-2 sm:pb-0 sm:border-none">
               <button
                 type="button"
+                suppressHydrationWarning
                 onClick={() => setActiveTab("all")}
                 className={`px-4 py-2 text-xs font-sans uppercase tracking-[0.12em] transition-colors cursor-pointer ${
                   activeTab === "all"
@@ -60,6 +61,7 @@ export function FeaturedProductsSection({
                 <button
                   key={col.id}
                   type="button"
+                  suppressHydrationWarning
                   onClick={() => setActiveTab(col.slug)}
                   className={`px-4 py-2 text-xs font-sans uppercase tracking-[0.12em] transition-colors cursor-pointer ${
                     activeTab === col.slug

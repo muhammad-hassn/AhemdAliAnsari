@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { FormSection } from "@/components/admin/FormSection";
 import { AdminSeoPanel } from "@/components/admin/AdminSeoPanel";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import { SingleImageUploader } from "@/components/admin/SingleImageUploader";
 import { saveBlogPostAction } from "@/server/actions/admin";
 import type { BlogPost, Author, BlogCategory, BlogTag } from "@/types";
 
@@ -216,21 +217,19 @@ export function BlogPostForm({
 
       {/* Cover Image */}
       <FormSection title="Cover Image" description="Hero visual — 16:9 landscape recommended for blog.">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
+        <div className="space-y-4">
+          <SingleImageUploader
+            value={coverImageUrl}
+            onChange={setCoverImageUrl}
+            bucket="product-images"
+            label="Cover Image (16:9 Landscape) *"
+            helperText="Tap or click to browse image from mobile or laptop. JPG, PNG, WebP supported."
+            aspectRatioClass="aspect-[16/9] max-w-md"
+          />
+
+          <div className="max-w-md">
             <label className="block text-xs uppercase tracking-wider text-stone-700 font-medium font-sans mb-1">
-              Image URL *
-            </label>
-            <Input
-              required
-              value={coverImageUrl}
-              onChange={(e) => setCoverImageUrl(e.target.value)}
-              placeholder="/images/blog/zardozi-art.jpg"
-            />
-          </div>
-          <div>
-            <label className="block text-xs uppercase tracking-wider text-stone-700 font-medium font-sans mb-1">
-              Alt Text *
+              Alt Text (Accessibility & SEO) *
             </label>
             <Input
               required

@@ -11,6 +11,12 @@ const SETTINGS_KEYS = [
   "instagram_url",
   "facebook_url",
   "google_analytics_id",
+  "bank_name",
+  "bank_account_title",
+  "bank_account_number",
+  "bank_iban",
+  "bank_branch",
+  "bank_transfer_instructions",
 ];
 
 export default async function AdminSettingsPage() {

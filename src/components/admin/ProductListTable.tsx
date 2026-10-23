@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -18,14 +18,28 @@ interface ProductListTableProps {
 
 export function ProductListTable({ products }: ProductListTableProps) {
   const router = useRouter();
+  const [items, setItems] = useState<Product[]>(products);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [duplicatingId, setDuplicatingId] = useState<string | null>(null);
 
+  useEffect(() => {
+    setItems(products);
+  }, [products]);
+
   const handleDelete = async () => {
     if (!deleteTargetId) return;
-    await deleteProductAction(deleteTargetId);
-    setDeleteTargetId(null);
-    router.refresh();
+    try {
+      const res = await deleteProductAction(deleteTargetId);
+      if (!res.success) {
+        alert(res.error || "Failed to delete product");
+        return;
+      }
+      setItems((prev) => prev.filter((p) => p.id !== deleteTargetId));
+      setDeleteTargetId(null);
+      router.refresh();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Error deleting product");
+    }
   };
 
   const handleDuplicate = async (id: string) => {
@@ -169,7 +183,7 @@ export function ProductListTable({ products }: ProductListTableProps) {
   return (
     <>
       <DataTable
-        data={products as unknown as Record<string, unknown>[]}
+        data={items as unknown as Record<string, unknown>[]}
         columns={columns as unknown as Column<Record<string, unknown>>[]}
         searchKey="name"
         searchPlaceholder="Search garments by title..."

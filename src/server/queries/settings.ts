@@ -1,5 +1,6 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
 import { createPublicClient } from "@/lib/supabase/server";
 import type { SiteSetting } from "@/types";
 
@@ -13,9 +14,16 @@ const FALLBACK_SETTINGS: Record<string, string> = {
   contact_address: "Lahore, Punjab, Pakistan",
   instagram_url: "https://instagram.com/ahmedaliansari.official",
   facebook_url: "https://www.facebook.com/share/1M1kjqDWHj/",
+  bank_name: "Meezan Bank Limited",
+  bank_account_title: "Ahmed Ali Ansari",
+  bank_account_number: "0101-0105849301",
+  bank_iban: "PK36MEZN0001010105849301",
+  bank_branch: "Main Branch, Lahore",
+  bank_transfer_instructions:
+    "Please transfer the payable amount to our official bank account. Submit your transaction reference ID and upload the transfer receipt screenshot to confirm your order.",
 };
 
-export async function getSiteSettings(): Promise<Record<string, string>> {
+async function fetchSiteSettings(): Promise<Record<string, string>> {
   try {
     const supabase = createPublicClient();
     const { data, error } = await supabase.from("site_settings").select("*");
@@ -34,7 +42,46 @@ export async function getSiteSettings(): Promise<Record<string, string>> {
   }
 }
 
+export const getSiteSettings = unstable_cache(fetchSiteSettings, ["settings"], {
+  tags: ["settings"],
+  revalidate: 3600,
+});
+
 export async function getSiteSetting(key: string): Promise<string> {
   const all = await getSiteSettings();
   return all[key] ?? FALLBACK_SETTINGS[key] ?? "";
 }
+
+export async function getPromotionalPopup(): Promise<import("@/types").PromotionalPopup | null> {
+  try {
+    const raw = await getSiteSetting("promotional_popup");
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as import("@/types").PromotionalPopup;
+    if (!parsed || !parsed.is_active) return null;
+
+    const now = Date.now();
+    if (parsed.start_date) {
+      const start = new Date(parsed.start_date).getTime();
+      if (!isNaN(start) && start > now) return null;
+    }
+    if (parsed.expiry_date) {
+      const expiry = new Date(parsed.expiry_date).getTime();
+      if (!isNaN(expiry) && expiry < now) return null;
+    }
+
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+export async function getAdminPromotionalPopup(): Promise<import("@/types").PromotionalPopup | null> {
+  try {
+    const raw = await getSiteSetting("promotional_popup");
+    if (!raw) return null;
+    return JSON.parse(raw) as import("@/types").PromotionalPopup;
+  } catch {
+    return null;
+  }
+}
+

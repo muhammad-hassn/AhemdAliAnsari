@@ -1,7 +1,6 @@
 import { ImageResponse } from "next/og";
 import { getCollectionBySlug } from "@/server/queries/collections";
 
-export const runtime = "edge";
 export const alt = "Zahra Luxe Collection";
 export const size = {
   width: 1200,

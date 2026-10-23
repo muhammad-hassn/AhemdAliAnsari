@@ -156,10 +156,17 @@ export interface OrderEvent {
 export interface PaymentProof {
   id: string;
   order_id: string;
+  storage_path?: string;
   file_url: string;
+  transaction_reference?: string | null;
+  amount?: number | null;
   notes: string | null;
   status: "pending" | "approved" | "rejected";
+  rejection_reason?: string | null;
+  reviewed_by?: string | null;
+  reviewed_at?: string | null;
   created_at: string;
+  uploaded_at?: string;
 }
 
 export interface Order {
@@ -189,6 +196,7 @@ export interface Order {
   payment_option: PaymentOption;
   deposit_amount_pkr: number;
   balance_amount_pkr: number;
+  amount_paid_pkr?: number;
   payment_status: PaymentStatus;
   tracking_number: string | null;
   notes: string | null;
@@ -197,6 +205,7 @@ export interface Order {
   updated_at: string;
   items?: OrderItem[];
   events?: OrderEvent[];
+  proofs?: PaymentProof[];
 }
 
 export interface ShippingRate {
@@ -323,6 +332,23 @@ export interface AdminCustomer {
   ordersCount: number;
   totalSpentPkr: number;
   createdAt: string;
+}
+
+export interface PromotionalPopup {
+  id: string;
+  is_active: boolean;
+  title: string;
+  description: string;
+  badge_text?: string;
+  discount_code?: string;
+  image_url: string;
+  button_text: string;
+  destination_link: string;
+  start_date?: string | null;
+  expiry_date?: string | null;
+  delay_seconds: number;
+  frequency: "once_per_session" | "always" | "once_ever";
+  updated_at?: string;
 }
 
 

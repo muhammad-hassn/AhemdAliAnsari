@@ -1,10 +1,11 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
 import { createPublicClient } from "@/lib/supabase/server";
 import type { HeroSlide } from "@/types";
 import { SEED_HERO_SLIDES } from "./seed-data";
 
-export async function getHeroSlides(): Promise<HeroSlide[]> {
+async function fetchHeroSlides(): Promise<HeroSlide[]> {
   try {
     const supabase = createPublicClient();
     const { data, error } = await supabase
@@ -21,3 +22,8 @@ export async function getHeroSlides(): Promise<HeroSlide[]> {
     return SEED_HERO_SLIDES;
   }
 }
+
+export const getHeroSlides = unstable_cache(fetchHeroSlides, ["hero_slides"], {
+  tags: ["hero_slides"],
+  revalidate: 3600,
+});

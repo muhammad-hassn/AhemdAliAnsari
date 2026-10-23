@@ -46,7 +46,7 @@ export function Hero({ slides }: HeroProps) {
   const currentTheme = THEME_NAMES[current] ?? "Couture Edition";
 
   return (
-    <div className="relative h-[85vh] min-h-[600px] max-h-[950px] w-full overflow-hidden bg-ink text-ivory select-none">
+    <div className="relative h-[72vh] sm:h-[82vh] lg:h-[88vh] min-h-[480px] sm:min-h-[580px] max-h-[950px] w-full overflow-hidden bg-ink text-ivory select-none">
       {/* Background Slides Cross-Fade */}
       <AnimatePresence mode="wait">
         <motion.div
@@ -64,50 +64,77 @@ export function Hero({ slides }: HeroProps) {
             transition={{ duration: 7, ease: "linear" }}
             className="relative h-full w-full"
           >
-            <Image
-              src={slide.desktop_image_url}
-              alt={slide.heading}
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover object-center"
-            />
+            {slide.mobile_image_url ? (
+              <>
+                {/* Mobile-optimized image */}
+                <div className="block sm:hidden relative h-full w-full">
+                  <Image
+                    src={slide.mobile_image_url}
+                    alt={slide.heading}
+                    fill
+                    priority
+                    sizes="100vw"
+                    className="object-cover object-center"
+                  />
+                </div>
+                {/* Tablet / Desktop image */}
+                <div className="hidden sm:block relative h-full w-full">
+                  <Image
+                    src={slide.desktop_image_url}
+                    alt={slide.heading}
+                    fill
+                    priority
+                    sizes="100vw"
+                    className="object-cover object-center sm:object-[center_35%]"
+                  />
+                </div>
+              </>
+            ) : (
+              <Image
+                src={slide.desktop_image_url}
+                alt={slide.heading}
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover object-center sm:object-[center_35%]"
+              />
+            )}
           </motion.div>
-          {/* Subtle editorial scrim / gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/35 to-ink/20" />
+          {/* Subtle editorial scrim / gradient for crystal clear text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/40 to-ink/20" />
         </motion.div>
       </AnimatePresence>
 
       {/* Hero Content */}
-      <div className="relative z-10 flex h-full items-end pb-14 sm:pb-20">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-12 w-full flex flex-col items-start gap-5">
+      <div className="relative z-10 flex h-full items-end pb-10 sm:pb-16 lg:pb-20">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-12 w-full flex flex-col items-start gap-4 sm:gap-5">
           {/* Eyebrow theme badge */}
           <div className="flex items-center gap-2">
             <span className="h-[1px] w-6 bg-gold" />
-            <span className="font-sans text-[11px] sm:text-xs uppercase tracking-[0.28em] text-gold font-medium">
+            <span className="font-sans text-[10px] sm:text-xs uppercase tracking-[0.28em] text-gold font-medium">
               {currentTheme}
             </span>
           </div>
 
-          <div className="space-y-3.5 max-w-2xl">
+          <div className="space-y-2.5 sm:space-y-3.5 max-w-2xl">
             <TextReveal
               text={slide.heading}
               as="h1"
-              className="font-heading text-4xl sm:text-6xl md:text-7xl font-light text-ivory tracking-tight leading-[0.98]"
+              className="font-heading text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-light text-ivory tracking-tight leading-[1.05] sm:leading-[0.98]"
             />
             {slide.subheading && (
-              <p className="text-sm sm:text-base text-ivory/85 font-sans font-light max-w-lg leading-relaxed">
+              <p className="text-xs sm:text-sm lg:text-base text-ivory/85 font-sans font-light max-w-lg leading-relaxed line-clamp-3 sm:line-clamp-none">
                 {slide.subheading}
               </p>
             )}
           </div>
 
-          <div className="pt-2">
+          <div className="pt-1 sm:pt-2">
             <Button
               asChild
               variant="outline"
               size="lg"
-              className="border-ivory/80 text-ivory hover:bg-ivory hover:text-ink transition-all shadow-sm"
+              className="border-ivory/80 text-ivory hover:bg-ivory hover:text-ink transition-all shadow-sm text-xs sm:text-sm"
             >
               <Link href={slide.cta_link}>{slide.cta_text}</Link>
             </Button>

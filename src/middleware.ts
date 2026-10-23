@@ -41,15 +41,24 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   const { pathname } = request.nextUrl;
 
   const matchedGuard = ROUTE_GUARDS.find((guard) =>
     pathname.startsWith(guard.prefix),
   );
+
+  // Optimization: For unauthenticated public visitors, avoid blocking network round-trip to Supabase Auth
+  const hasAuthCookie = request.cookies
+    .getAll()
+    .some((c) => c.name.includes("-auth-token") || c.name.startsWith("sb-"));
+
+  if (!matchedGuard && !hasAuthCookie) {
+    return response;
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (matchedGuard) {
     if (!user) {

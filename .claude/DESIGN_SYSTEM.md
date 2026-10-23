@@ -1,6 +1,6 @@
 # DESIGN SYSTEM — Luxury Editorial
 
-> This brand is a Pakistani luxury Eastern-wear house. The design must feel like a high-end fashion editorial. NOT playful, NOT startup-modern, NOT e-commerce-generic.
+> **Ali Ahmed Ansari** — Pakistani luxury Eastern-wear house. The design must feel like a high-end fashion editorial. NOT playful, NOT startup-modern, NOT e-commerce-generic.
 
 ## Color Palette (CSS Variables)
 ```css

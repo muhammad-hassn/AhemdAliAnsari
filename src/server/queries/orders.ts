@@ -2,6 +2,7 @@ import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/server/rate-limit";
+import { getSiteSettings } from "@/server/queries/settings";
 import type { ShippingRate, PaymentMethod, Order } from "@/types";
 
 const FALLBACK_SHIPPING_RATES: ShippingRate[] = [
@@ -23,35 +24,75 @@ const FALLBACK_SHIPPING_RATES: ShippingRate[] = [
   },
 ];
 
-const FALLBACK_PAYMENT_METHODS: PaymentMethod[] = [
-  {
-    id: "pm-cod",
-    code: "cod",
-    name: "Cash on Delivery",
-    instructions: "Pay upon physical delivery of your ensemble. Available exclusively for domestic deliveries within Pakistan.",
-    requires_proof: false,
-    allowed_countries: ["PK"],
-    is_active: true,
-  },
-  {
-    id: "pm-bank",
-    code: "bank_transfer",
-    name: "Direct Bank Transfer",
-    instructions: "Habib Bank Limited (HBL)\nAccount Title: Zahra Luxe Couture\nIBAN: PK36HABB0001234567890123\nPlease upload your wire transfer receipt after completing payment.",
-    requires_proof: true,
-    allowed_countries: ["*"],
-    is_active: true,
-  },
-  {
-    id: "pm-easypaisa",
-    code: "easypaisa",
-    name: "Easypaisa / JazzCash",
-    instructions: "Account Title: Zahra Luxe\nNumber: 0300-1234567\nPlease provide your transaction ID or screenshot proof after payment.",
-    requires_proof: true,
-    allowed_countries: ["PK"],
-    is_active: true,
-  },
-];
+export async function getPaymentMethods(): Promise<PaymentMethod[]> {
+  const settings = await getSiteSettings();
+  const bankInstructions = [
+    settings.bank_name ? `Bank: ${settings.bank_name}` : "Bank: Meezan Bank Limited",
+    settings.bank_account_title ? `Account Title: ${settings.bank_account_title}` : "Account Title: Ahmed Ali Ansari",
+    settings.bank_account_number ? `Account Number: ${settings.bank_account_number}` : "Account Number: 0101-0105849301",
+    settings.bank_iban ? `IBAN: ${settings.bank_iban}` : "IBAN: PK36MEZN0001010105849301",
+    settings.bank_branch ? `Branch: ${settings.bank_branch}` : "",
+    settings.bank_transfer_instructions || "Please transfer the payable amount and upload your transaction receipt/reference for verification.",
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const fallbackMethods: PaymentMethod[] = [
+    {
+      id: "pm-bank",
+      code: "bank_transfer",
+      name: "Direct Bank Transfer",
+      instructions: bankInstructions,
+      requires_proof: true,
+      allowed_countries: ["*"],
+      is_active: true,
+    },
+    {
+      id: "pm-cod",
+      code: "cod",
+      name: "Cash on Delivery",
+      instructions: "Pay upon physical delivery of your ensemble. Available exclusively for domestic deliveries within Pakistan.",
+      requires_proof: false,
+      allowed_countries: ["PK"],
+      is_active: true,
+    },
+    {
+      id: "pm-easypaisa",
+      code: "easypaisa",
+      name: "Easypaisa / JazzCash",
+      instructions: `Account Title: ${settings.bank_account_title || "Ahmed Ali Ansari"}\nNumber: ${settings.contact_phone || "0309-2045906"}\nPlease provide your transaction ID or screenshot proof after payment.`,
+      requires_proof: true,
+      allowed_countries: ["PK"],
+      is_active: true,
+    },
+  ];
+
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("payment_methods")
+      .select("*")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true });
+
+    if (error || !data || data.length === 0) {
+      return fallbackMethods;
+    }
+
+    // Enhance database methods with dynamic bank instructions if bank_transfer
+    return (data as PaymentMethod[]).map((m) => {
+      if (m.code === "bank_transfer") {
+        return {
+          ...m,
+          instructions: m.instructions || bankInstructions,
+        };
+      }
+      return m;
+    });
+  } catch {
+    return fallbackMethods;
+  }
+}
 
 export async function getShippingRates(): Promise<ShippingRate[]> {
   try {
@@ -70,23 +111,6 @@ export async function getShippingRates(): Promise<ShippingRate[]> {
   }
 }
 
-export async function getPaymentMethods(): Promise<PaymentMethod[]> {
-  try {
-    const supabase = await createClient();
-    const { data, error } = await supabase
-      .from("payment_methods")
-      .select("*")
-      .eq("is_active", true);
-
-    if (error || !data || data.length === 0) {
-      return FALLBACK_PAYMENT_METHODS;
-    }
-    return data as PaymentMethod[];
-  } catch {
-    return FALLBACK_PAYMENT_METHODS;
-  }
-}
-
 export async function getOrderByNumberAndToken(
   orderNumber: string,
   token?: string | null,
@@ -95,7 +119,7 @@ export async function getOrderByNumberAndToken(
 
   let query = supabase
     .from("orders")
-    .select("*, items:order_items(*), events:order_events(*)")
+    .select("*, items:order_items(*), events:order_events(*), proofs:payment_proofs(*)")
     .eq("order_number", orderNumber);
 
   if (token) {

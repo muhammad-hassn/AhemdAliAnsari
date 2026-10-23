@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/server/rate-limit";
 import { safeAction, actionOk, actionError } from "@/lib/action";
 import { checkoutSchema } from "@/lib/validation/checkout";
@@ -44,9 +44,9 @@ export async function placeOrderAction(payload: PlaceOrderPayload) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    // 3. Generate identifiers
+    // 3. Generate identifiers (Ahmed Ali Ansari prefix AAA)
     const randomHex = Math.random().toString(36).substring(2, 7).toUpperCase();
-    const orderNumber = `ZL-${Date.now().toString().slice(-4)}${randomHex}`;
+    const orderNumber = `AAA-${Date.now().toString().slice(-4)}${randomHex}`;
     const accessToken = crypto.randomUUID();
 
     // 4. Insert order row
@@ -66,12 +66,14 @@ export async function placeOrderAction(payload: PlaceOrderPayload) {
       payment_option: validated.payment_option,
       deposit_amount_pkr: pricing.amount_due_now_pkr,
       balance_amount_pkr: pricing.amount_balance_pkr,
+      amount_paid_pkr: 0,
       payment_status: "pending" as const,
       notes: validated.customer_note ?? null,
       access_token: accessToken,
     };
 
-    const { data: orderData, error: orderError } = await supabase
+    const serviceClient = createServiceClient();
+    const { data: orderData, error: orderError } = await serviceClient
       .from("orders")
       .insert(orderInsert)
       .select("id")
@@ -94,13 +96,13 @@ export async function placeOrderAction(payload: PlaceOrderPayload) {
       product_image_url: item.image,
     }));
 
-    await supabase.from("order_items").insert(itemsToInsert);
+    await serviceClient.from("order_items").insert(itemsToInsert);
 
     // 6. Record order created event
-    await supabase.from("order_events").insert({
+    await serviceClient.from("order_events").insert({
       order_id: orderId,
       status: "pending",
-      note: "Order confirmed by patron",
+      note: "Order placed by patron. Awaiting payment processing.",
     });
 
     // 7. Dispatch emails asynchronously without blocking order success

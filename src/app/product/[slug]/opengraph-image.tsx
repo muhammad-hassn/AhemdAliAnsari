@@ -1,7 +1,6 @@
 import { ImageResponse } from "next/og";
 import { getProductBySlug } from "@/server/queries/products";
 
-export const runtime = "edge";
 export const alt = "Zahra Luxe Couture";
 export const size = {
   width: 1200,

@@ -1,10 +1,10 @@
-import "server-only";
-
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { createPublicClient } from "@/lib/supabase/server";
 import type { Collection } from "@/types";
 import { SEED_COLLECTIONS } from "./seed-data";
 
-export async function getCollections(): Promise<Collection[]> {
+async function fetchCollections(): Promise<Collection[]> {
   try {
     const supabase = createPublicClient();
     const { data, error } = await supabase
@@ -21,7 +21,12 @@ export async function getCollections(): Promise<Collection[]> {
   }
 }
 
-export async function getCollectionBySlug(slug: string): Promise<Collection | null> {
+export const getCollections = unstable_cache(fetchCollections, ["collections"], {
+  tags: ["collections"],
+  revalidate: 3600,
+});
+
+export const getCollectionBySlug = cache(async (slug: string): Promise<Collection | null> => {
   try {
     const supabase = createPublicClient();
     const { data, error } = await supabase
@@ -37,4 +42,4 @@ export async function getCollectionBySlug(slug: string): Promise<Collection | nu
   } catch {
     return SEED_COLLECTIONS.find((c) => c.slug === slug) ?? null;
   }
-}
+});

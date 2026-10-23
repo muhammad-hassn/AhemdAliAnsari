@@ -1,8 +1,7 @@
 "use server";
 
-import "server-only";
-import { revalidateTag } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { revalidateTag, revalidatePath } from "next/cache";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import {
   ProductSchema,
   CollectionSchema,
@@ -39,7 +38,8 @@ async function requireRole(allowedRoles: ("admin" | "editor")[]) {
     throw new Error("Forbidden: You do not have permission for this action");
   }
 
-  return { supabase, user, role: profile.role };
+  const serviceClient = createServiceClient();
+  return { supabase: serviceClient, user, role: profile.role };
 }
 
 async function recordAudit(
@@ -143,11 +143,14 @@ export async function saveProductAction(
 
 export async function deleteProductAction(id: string): Promise<ActionResult> {
   try {
-    const { supabase, user } = await requireRole(["admin"]);
+    const { supabase, user } = await requireRole(["admin", "editor"]);
     const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) return actionError(error.message);
 
     await recordAudit(supabase, user.id, "delete", "product", id);
+    revalidatePath("/admin/products");
+    revalidatePath("/shop");
+    revalidatePath("/");
     revalidateTag("products", "max");
     return actionOk(undefined);
   } catch (err) {
@@ -194,14 +197,14 @@ export async function duplicateProductAction(id: string): Promise<ActionResult<{
       .select("size, quantity")
       .eq("product_id", id);
 
-    if (stockItems) {
-      for (const item of stockItems) {
-        await supabase.from("product_stock").insert({
+    if (stockItems && stockItems.length > 0) {
+      await supabase.from("product_stock").insert(
+        stockItems.map((item) => ({
           product_id: inserted.id,
           size: item.size,
           quantity: item.quantity,
-        });
-      }
+        })),
+      );
     }
 
     await recordAudit(supabase, user.id, "duplicate", "product", inserted.id, { originalId: id });
@@ -272,11 +275,18 @@ export async function saveCollectionAction(
 
 export async function deleteCollectionAction(id: string): Promise<ActionResult> {
   try {
-    const { supabase, user } = await requireRole(["admin"]);
+    const { supabase, user } = await requireRole(["admin", "editor"]);
+
+    // Disassociate any products from this collection so they become standalone garments
+    await supabase.from("products").update({ collection_id: null }).eq("collection_id", id);
+
     const { error } = await supabase.from("collections").delete().eq("id", id);
     if (error) return actionError(error.message);
 
     await recordAudit(supabase, user.id, "delete", "collection", id);
+    revalidatePath("/admin/collections");
+    revalidatePath("/shop");
+    revalidatePath("/");
     revalidateTag("collections", "max");
     return actionOk(undefined);
   } catch (err) {
@@ -379,6 +389,232 @@ export async function updateOrderNotesAction(
     return actionOk(undefined);
   } catch (err) {
     return actionError(err instanceof Error ? err.message : "Error updating notes");
+  }
+}
+
+export async function approvePaymentProofAction(
+  orderId: string,
+  proofId?: string,
+): Promise<ActionResult> {
+  try {
+    const { supabase, user } = await requireRole(["admin"]);
+    const serviceClient = createServiceClient();
+
+    // Fetch order details
+    const { data: order, error: orderErr } = await serviceClient
+      .from("orders")
+      .select("*")
+      .eq("id", orderId)
+      .single();
+
+    if (orderErr || !order) {
+      return actionError("Order not found.");
+    }
+
+    if (order.payment_status === "paid") {
+      return actionError("Order payment is already marked as paid.");
+    }
+
+    const isDeposit = order.payment_option === "deposit";
+    const depositAmount = Number(order.deposit_amount_pkr || Math.ceil(order.total_pkr * 0.5));
+    const totalAmount = Number(order.total_pkr);
+    const balanceAmount = isDeposit ? totalAmount - depositAmount : 0;
+
+    const newPaymentStatus = isDeposit ? "deposit_received" : "paid";
+    const newAmountPaid = isDeposit ? depositAmount : totalAmount;
+
+    // 1. Update payment proof status if proof provided
+    if (proofId) {
+      await serviceClient
+        .from("payment_proofs")
+        .update({
+          status: "approved",
+          rejection_reason: null,
+          reviewed_by: user.id,
+          reviewed_at: new Date().toISOString(),
+        })
+        .eq("id", proofId);
+    } else {
+      // If no specific proof ID provided, approve any pending proofs for this order
+      await serviceClient
+        .from("payment_proofs")
+        .update({
+          status: "approved",
+          rejection_reason: null,
+          reviewed_by: user.id,
+          reviewed_at: new Date().toISOString(),
+        })
+        .eq("order_id", orderId)
+        .eq("status", "pending");
+    }
+
+    // 2. Update order financial and payment status
+    const updatePayload: Record<string, unknown> = {
+      payment_status: newPaymentStatus,
+      amount_paid_pkr: newAmountPaid,
+      balance_amount_pkr: balanceAmount,
+      updated_at: new Date().toISOString(),
+    };
+
+    // If order was pending, automatically confirm it since payment / deposit is verified
+    if (order.status === "pending") {
+      updatePayload.status = "confirmed";
+    }
+
+    const { error: updErr } = await serviceClient
+      .from("orders")
+      .update(updatePayload)
+      .eq("id", orderId);
+
+    if (updErr) {
+      return actionError(`Failed to update order payment: ${updErr.message}`);
+    }
+
+    // 3. Record order event
+    const eventNote = isDeposit
+      ? `Advance bank transfer of Rs. ${depositAmount.toLocaleString()} verified by admin. Outstanding COD balance: Rs. ${balanceAmount.toLocaleString()}. Order moved to Confirmed.`
+      : `Full bank transfer payment of Rs. ${totalAmount.toLocaleString()} verified by admin. Order is now fully PAID and Confirmed.`;
+
+    await serviceClient.from("order_events").insert({
+      order_id: orderId,
+      status: (updatePayload.status as OrderStatus) || order.status,
+      note: eventNote,
+    });
+
+    // 4. Record audit log
+    await recordAudit(supabase, user.id, "approve_payment", "order", orderId, {
+      proofId,
+      isDeposit,
+      amountPaid: newAmountPaid,
+      balanceAmount,
+      paymentStatus: newPaymentStatus,
+    });
+
+    revalidateTag("orders", "max");
+    return actionOk(undefined);
+  } catch (err) {
+    return actionError(err instanceof Error ? err.message : "Error approving payment");
+  }
+}
+
+export async function rejectPaymentProofAction(
+  orderId: string,
+  proofId: string,
+  reason: string,
+): Promise<ActionResult> {
+  try {
+    const { supabase, user } = await requireRole(["admin"]);
+    const serviceClient = createServiceClient();
+
+    if (!reason || !reason.trim()) {
+      return actionError("Please specify a rejection reason for the client.");
+    }
+
+    // 1. Update payment proof status
+    if (proofId) {
+      const { error: proofErr } = await serviceClient
+        .from("payment_proofs")
+        .update({
+          status: "rejected",
+          rejection_reason: reason.trim(),
+          reviewed_by: user.id,
+          reviewed_at: new Date().toISOString(),
+        })
+        .eq("id", proofId);
+
+      if (proofErr) {
+        return actionError(`Failed to update proof: ${proofErr.message}`);
+      }
+    }
+
+    // 2. Reset order payment status to pending
+    const { error: orderErr } = await serviceClient
+      .from("orders")
+      .update({
+        payment_status: "pending",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", orderId);
+
+    if (orderErr) {
+      return actionError(`Failed to reset order payment status: ${orderErr.message}`);
+    }
+
+    // 3. Record order event
+    await serviceClient.from("order_events").insert({
+      order_id: orderId,
+      status: "pending",
+      note: `Payment proof submission rejected by admin. Reason: ${reason.trim()}. Awaiting new client submission.`,
+    });
+
+    // 4. Record audit log
+    await recordAudit(supabase, user.id, "reject_payment", "order", orderId, {
+      proofId,
+      reason: reason.trim(),
+    });
+
+    revalidateTag("orders", "max");
+    return actionOk(undefined);
+  } catch (err) {
+    return actionError(err instanceof Error ? err.message : "Error rejecting payment");
+  }
+}
+
+export async function markCodCollectedAction(orderId: string): Promise<ActionResult> {
+  try {
+    const { supabase, user } = await requireRole(["admin"]);
+    const serviceClient = createServiceClient();
+
+    // Fetch order
+    const { data: order, error: orderErr } = await serviceClient
+      .from("orders")
+      .select("*")
+      .eq("id", orderId)
+      .single();
+
+    if (orderErr || !order) {
+      return actionError("Order not found.");
+    }
+
+    if (order.payment_status === "paid") {
+      return actionError("This order is already marked as fully paid.");
+    }
+
+    const totalAmount = Number(order.total_pkr);
+    const balanceAmount = Number(order.balance_amount_pkr || 0);
+
+    // Update order
+    const { error: updErr } = await serviceClient
+      .from("orders")
+      .update({
+        amount_paid_pkr: totalAmount,
+        balance_amount_pkr: 0,
+        payment_status: "paid",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", orderId);
+
+    if (updErr) {
+      return actionError(`Failed to update COD collection: ${updErr.message}`);
+    }
+
+    // Record order event
+    await serviceClient.from("order_events").insert({
+      order_id: orderId,
+      status: order.status,
+      note: `Outstanding COD balance of Rs. ${balanceAmount.toLocaleString()} collected upon delivery. Order marked as fully PAID.`,
+    });
+
+    // Record audit log
+    await recordAudit(supabase, user.id, "collect_cod", "order", orderId, {
+      totalAmount,
+      balanceCollected: balanceAmount,
+    });
+
+    revalidateTag("orders", "max");
+    return actionOk(undefined);
+  } catch (err) {
+    return actionError(err instanceof Error ? err.message : "Error updating COD collection");
   }
 }
 
@@ -493,15 +729,18 @@ export async function savePageAction(
 
     const { error } = await supabase
       .from("pages")
-      .update({
-        title: data.title,
-        content: data.content,
-        meta_title: data.meta_title || null,
-        meta_description: data.meta_description || null,
-        hero_image_url: data.hero_image_url || null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("key", data.key);
+      .upsert(
+        {
+          key: data.key,
+          title: data.title,
+          content: data.content,
+          meta_title: data.meta_title || null,
+          meta_description: data.meta_description || null,
+          hero_image_url: data.hero_image_url || null,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "key" },
+      );
 
     if (error) return actionError(error.message);
 
@@ -589,11 +828,16 @@ export async function saveSiteSettingsAction(
   try {
     const { supabase, user } = await requireRole(["admin"]);
 
-    for (const [key, value] of Object.entries(settings)) {
-      await supabase
-        .from("site_settings")
-        .upsert({ key, value, updated_at: new Date().toISOString() });
-    }
+    // Batch all settings into a single upsert instead of sequential round-trips
+    const now = new Date().toISOString();
+    const rows = Object.entries(settings).map(([key, value]) => ({
+      key,
+      value,
+      updated_at: now,
+    }));
+
+    const { error } = await supabase.from("site_settings").upsert(rows);
+    if (error) return actionError(error.message);
 
     await recordAudit(supabase, user.id, "update", "site_settings", "bulk", settings);
     revalidateTag("settings", "max");
@@ -768,5 +1012,84 @@ export async function deleteNavigationItemAction(id: string): Promise<ActionResu
     return actionError(err instanceof Error ? err.message : "Error deleting nav item");
   }
 }
+
+// 11. PROMOTIONAL POPUP
+export async function savePromotionalPopupAction(
+  popup: Partial<import("@/types").PromotionalPopup> & {
+    title: string;
+    description: string;
+    image_url: string;
+    button_text: string;
+    destination_link: string;
+  },
+): Promise<ActionResult> {
+  try {
+    const { supabase, user } = await requireRole(["admin", "editor"]);
+
+    const payload: import("@/types").PromotionalPopup = {
+      id: popup.id || `promo-${Date.now()}`,
+      is_active: popup.is_active ?? true,
+      title: popup.title.trim(),
+      description: popup.description.trim(),
+      badge_text: popup.badge_text?.trim() || undefined,
+      discount_code: popup.discount_code?.trim() || undefined,
+      image_url: popup.image_url.trim(),
+      button_text: popup.button_text.trim() || "Shop Now",
+      destination_link: popup.destination_link.trim() || "/shop",
+      start_date: popup.start_date || null,
+      expiry_date: popup.expiry_date || null,
+      delay_seconds: popup.delay_seconds ?? 3,
+      frequency: popup.frequency || "once_per_session",
+      updated_at: new Date().toISOString(),
+    };
+
+    const { error } = await supabase.from("site_settings").upsert({
+      key: "promotional_popup",
+      value: JSON.stringify(payload),
+      updated_at: new Date().toISOString(),
+    });
+
+    if (error) return actionError(error.message);
+
+    await recordAudit(
+      supabase,
+      user.id,
+      "update",
+      "promotional_popup",
+      payload.id,
+      payload as unknown as Record<string, unknown>,
+    );
+    revalidateTag("settings", "max");
+    revalidateTag("promotional_popup", "max");
+
+    return actionOk(undefined);
+  } catch (err) {
+    return actionError(err instanceof Error ? err.message : "Error saving promotional popup");
+  }
+}
+
+export async function deletePromotionalPopupAction(): Promise<ActionResult> {
+  try {
+    const { supabase, user } = await requireRole(["admin"]);
+
+    // Disable the popup rather than leaving broken state
+    const { error } = await supabase.from("site_settings").upsert({
+      key: "promotional_popup",
+      value: JSON.stringify({ is_active: false, updated_at: new Date().toISOString() }),
+      updated_at: new Date().toISOString(),
+    });
+
+    if (error) return actionError(error.message);
+
+    await recordAudit(supabase, user.id, "delete", "promotional_popup", "single");
+    revalidateTag("settings", "max");
+    revalidateTag("promotional_popup", "max");
+
+    return actionOk(undefined);
+  } catch (err) {
+    return actionError(err instanceof Error ? err.message : "Error deleting promotional popup");
+  }
+}
+
 
 

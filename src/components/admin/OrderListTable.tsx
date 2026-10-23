@@ -65,7 +65,21 @@ export function OrderListTable({ orders }: OrderListTableProps) {
     },
     {
       header: "Payment",
-      cell: (row) => <StatusBadge status={row.payment_status} />,
+      cell: (row) => (
+        <div className="space-y-1">
+          <StatusBadge status={row.payment_status} />
+          <div className="text-[10px] text-stone-500 font-sans">
+            {row.payment_method_id === "bank_transfer"
+              ? "Bank Transfer"
+              : row.payment_method_id === "cod"
+                ? "Cash on Delivery"
+                : row.payment_method_id}
+            {row.payment_option === "deposit" && (
+              <span className="text-amber-800 font-medium ml-1">(50% COD)</span>
+            )}
+          </div>
+        </div>
+      ),
     },
     {
       header: "Status",

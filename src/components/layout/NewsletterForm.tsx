@@ -41,6 +41,7 @@ export function NewsletterForm() {
         />
         <button
           type="submit"
+          suppressHydrationWarning
           disabled={loading}
           className="px-4 text-xs font-sans uppercase tracking-[0.1em] bg-ink text-ivory hover:bg-gold transition-colors shrink-0 disabled:opacity-50 cursor-pointer"
         >

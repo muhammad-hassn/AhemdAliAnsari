@@ -10,6 +10,11 @@ export function createPublicClient() {
   );
 }
 
+export function createServiceClient() {
+  const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  return createSupabaseClient(env.NEXT_PUBLIC_SUPABASE_URL, serviceKey);
+}
+
 export async function createClient() {
   const cookieStore = await cookies();
 

@@ -9,8 +9,10 @@ import { SafeHtml } from "@/components/ui/SafeHtml";
 export async function generateMetadata() {
   const page = await getPageByKey("about");
   return buildMetadata({
-    title: page?.meta_title ?? "About The House",
-    description: page?.meta_description ?? "Artisanal embroidery, heritage silks, and Pakistani couture.",
+    title: page?.meta_title ?? "About Ahmed Ali Ansari | Haute Couture & Pret",
+    description:
+      page?.meta_description ??
+      "Discover the heritage embroidery, artisanal textiles, and bespoke craftsmanship behind Ahmed Ali Ansari.",
     path: "/about",
   });
 }
@@ -24,20 +26,20 @@ export default async function AboutPage() {
       <section className="relative w-full h-[65vh] min-h-[440px] flex items-center justify-center overflow-hidden bg-ink text-ivory">
         <Image
           src={page?.hero_image_url ?? "/images/craftsmanship.jpg"}
-          alt="Zahra Luxe Handcrafting Atelier"
+          alt="Ahmed Ali Ansari Handcrafting Atelier"
           fill
           priority
           className="object-cover opacity-40"
         />
         <div className="relative z-10 text-center px-4 max-w-2xl mx-auto space-y-4">
-          <span className="text-xs uppercase tracking-[0.2em] text-gold font-sans">
+          <span className="text-xs uppercase tracking-[0.2em] text-gold font-sans font-medium">
             Heritage & Craftsmanship
           </span>
           <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight text-ivory">
-            {page?.title ?? "The House of Zahra Luxe"}
+            {page?.title ?? "About Ahmed Ali Ansari"}
           </h1>
-          <p className="text-xs sm:text-sm text-stone-light/80 font-sans tracking-wide uppercase">
-            Preserving South Asian Haute Couture lineage
+          <p className="text-xs sm:text-sm text-stone-light/80 font-sans tracking-widest uppercase">
+            Artisanal Embroidered Fabrics & Bespoke Eastern Couture
           </p>
         </div>
       </section>

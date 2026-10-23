@@ -19,12 +19,14 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
       case "scheduled":
       case "deposit_received":
         return "bg-amber-50 text-amber-800 border-amber-300";
-      case "pending":
       case "proof_submitted":
+        return "bg-sky-50 text-sky-800 border-sky-300";
+      case "pending":
       case "draft":
         return "bg-stone-100 text-stone-700 border-stone-300";
       case "cancelled":
       case "refunded":
+      case "rejected":
         return "bg-red-50 text-red-800 border-red-300";
       default:
         return "bg-stone-50 text-stone-700 border-stone-200";

@@ -1,37 +1,38 @@
 # PAGES MAP & COMPONENT INVENTORY
 
-> Quick reference for what pages exist and what components they use.
+> Quick reference for Ali Ahmed Ansari website — all pages and components.
+> All build phases complete.
 
 ---
 
 ## Storefront Pages
 
-| Route | Part | Key Components |
-|---|---|---|
-| `/` | 1 | Hero, TrustMarquee, CollectionCards, FeaturedProducts, CraftsmanshipSection, WhyUs, TestimonialCarousel, InstagramStrip |
-| `/shop` | 1 | ShopFilters, ProductGrid, GridToggle, Pagination, QuickViewDialog, SkeletonGrid, EmptyState |
-| `/product/[slug]` | 1 | ProductGallery, SizeSelector, SizeGuideDrawer, ProductAccordion, RelatedProducts, StickyMobileBar |
-| `/login` | 2 | AuthForm (email+password, magic link) |
-| `/register` | 2 | AuthForm |
-| `/forgot-password` | 2 | ForgotPasswordForm |
-| `/reset-password` | 2 | ResetPasswordForm |
-| `/account` | 2 | AccountTabs (Profile, Orders, Addresses, Wishlist) |
-| `/checkout` | 2 | CheckoutForm, ShippingForm, PaymentMethodList, PaymentOptionSelector, OrderSummary |
-| `/order/[number]` | 2 | OrderDetail, PaymentInstructions, ProofUploader, WhatsAppLink |
-| `/track` | 2 | TrackingForm, StatusTimeline |
-| `/about` | 2 | AboutHero, AboutSections, ParallaxImage |
-| `/contact` | 2 | FAQAccordion, ContactForm, WhatsAppButton |
-| `/privacy` | 2 | PolicyPage (shared layout) |
-| `/refund` | 2 | PolicyPage |
-| `/terms` | 2 | PolicyPage |
-| `/shipping` | 2 | PolicyPage |
-| `/blog` | 3 | FeaturedPostHero, CategoryFilter, BlogCardGrid, Pagination |
-| `/blog/[slug]` | 3 | BlogCover, TableOfContents, BlogContent, ShareButtons, RelatedPosts, RelatedProducts |
-| `/blog/category/[slug]` | 3 | CategoryHeader, BlogCardGrid, Pagination |
-| `/blog/tag/[slug]` | 3 | TagHeader, BlogCardGrid, Pagination |
-| `/blog/rss.xml` | 3 | (Route handler) |
+| Route | Key Components |
+|---|---|
+| `/` | Hero, TrustMarquee, CollectionCards, FeaturedProducts, CraftsmanshipSection, WhyUs, TestimonialCarousel, InstagramStrip |
+| `/shop` | ShopFilters, ProductGrid, GridToggle, Pagination, QuickViewDialog, SkeletonGrid, EmptyState |
+| `/product/[slug]` | ProductGallery, SizeSelector, SizeGuideDrawer, ProductAccordion, RelatedProducts, StickyMobileBar |
+| `/login` | AuthForm (email+password, magic link) |
+| `/register` | AuthForm |
+| `/forgot-password` | ForgotPasswordForm |
+| `/reset-password` | ResetPasswordForm |
+| `/account` | AccountTabs (Profile, Orders, Addresses, Wishlist) |
+| `/checkout` | CheckoutForm, ShippingForm, PaymentMethodList, PaymentOptionSelector, OrderSummary |
+| `/order/[number]` | OrderDetail, PaymentInstructions, ProofUploader, WhatsAppLink |
+| `/track` | TrackingForm, StatusTimeline |
+| `/about` | AboutHero, AboutSections, ParallaxImage |
+| `/contact` | FAQAccordion, ContactForm, WhatsAppButton |
+| `/privacy` | PolicyPage (shared layout) |
+| `/refund` | PolicyPage |
+| `/terms` | PolicyPage |
+| `/shipping` | PolicyPage |
+| `/blog` | FeaturedPostHero, CategoryFilter, BlogCardGrid, Pagination |
+| `/blog/[slug]` | BlogCover, TableOfContents, BlogContent, ShareButtons, RelatedPosts, RelatedProducts |
+| `/blog/category/[slug]` | CategoryHeader, BlogCardGrid, Pagination |
+| `/blog/tag/[slug]` | TagHeader, BlogCardGrid, Pagination |
+| `/blog/rss.xml` | (Route handler) |
 
-## Global Components (Part 1)
+## Global Components
 
 | Component | Location | Notes |
 |---|---|---|
@@ -42,7 +43,7 @@
 | CartDrawer | cart/CartDrawer.tsx | Slide-over, qty, remove, subtotal |
 | CurrencySwitcher | layout/CurrencySwitcher.tsx | Dropdown, persisted |
 
-## UI Primitives (Part 1)
+## UI Primitives
 
 | Component | Variants |
 |---|---|
@@ -54,7 +55,7 @@
 | Badge | Small caps label |
 | ProductCard | Image hover cross-fade + scale |
 
-## Motion Primitives (Part 1)
+## Motion Primitives
 
 | Component | Effect |
 |---|---|
@@ -63,7 +64,7 @@
 | TextReveal | Line/word mask reveal |
 | ParallaxImage | Scroll parallax |
 
-## Overlay / Interactive (Part 1)
+## Overlay / Interactive
 
 | Component | Notes |
 |---|---|
@@ -71,7 +72,7 @@
 | Sheet | For mobile menu, cart drawer, size guide |
 | Accordion | For product details, FAQs |
 
-## Admin Components (Part 3)
+## Admin Components
 
 | Component | Notes |
 |---|---|

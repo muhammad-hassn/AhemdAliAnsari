@@ -1,7 +1,6 @@
 import { ImageResponse } from "next/og";
 import { getBlogPostBySlug } from "@/server/queries/blog";
 
-export const runtime = "edge";
 export const alt = "The Atelier Journal — Zahra Luxe";
 export const size = {
   width: 1200,

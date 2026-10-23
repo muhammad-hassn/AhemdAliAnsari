@@ -1,10 +1,10 @@
 # DATABASE SCHEMA
 
-> All tables across all 3 parts. Each part adds its own migration file. RLS is ON for every table.
+> Ali Ahmed Ansari — Complete database schema reference. RLS is ON for every table.
 
 ---
 
-## Part 1 Migration: `supabase/migrations/0001_init.sql`
+## Foundation Tables (`supabase/migrations/0001_init.sql`)
 
 ### `collections`
 | Column | Type | Notes |
@@ -90,15 +90,15 @@
 | content | text | HTML body |
 | meta_title | text | nullable |
 | meta_description | text | nullable |
-| hero_image_url | text | nullable, added in Part 2 (ALTER) |
+| hero_image_url | text | nullable |
 | updated_at | timestamptz | |
 
-### RLS (Part 1)
+### RLS (Foundation)
 - All tables: public `SELECT` only on active/published rows
 - No public `INSERT`, `UPDATE`, `DELETE`
 - Products filtered by `is_active = true`
 
-### Seed Data (Part 1)
+### Seed Data
 - 3 collections
 - 12 products with generic names and neutral locally generated 2:3 placeholder images
 - 7 currencies (PKR, USD, GBP, EUR, AED, SAR, CAD)
@@ -107,7 +107,7 @@
 
 ---
 
-## Part 2 Migration: `supabase/migrations/0002_commerce.sql`
+## Commerce Tables (`supabase/migrations/0002_commerce.sql`)
 
 ### Enums
 ```sql
@@ -279,24 +279,23 @@ CREATE TYPE payment_option AS ENUM ('full', 'deposit');
 
 **Function**: `check_rate_limit(key, max, window_seconds)` → boolean.
 
-### DB Functions (Part 2, security definer)
+### DB Functions (security definer)
 1. **`current_user_role()`** — Returns the role of the current authenticated user, used in RLS.
 2. **`create_order(payload jsonb)`** — One transaction: locks product_stock FOR UPDATE, re-reads prices from products (never trust client), verifies stock/shipping/payment/deposit, decrements stock, inserts order + items + event, returns order_number + access_token.
-3. **`set_order_status(order_id, new_status, note)`** — Validates allowed status transitions, restores stock on cancel, writes order_events. Part 3 admin uses this as-is.
+3. **`set_order_status(order_id, new_status, note)`** — Validates allowed status transitions, restores stock on cancel, writes order_events.
 
-### RLS (Part 2)
+### RLS (Commerce)
 - profiles, addresses, wishlist_items: owner-only (user_id = auth.uid())
 - orders, order_items, order_events, payment_proofs: readable only by owner
 - contact_messages, subscribers, rate_limits: reachable only via server code (service role)
 - No public writes to any table
-- Admin policies added in Part 3
 
-### Storage (Part 2)
+### Storage
 - Private bucket `payment-proofs` (authenticated upload, no public read)
 
 ---
 
-## Part 3 Additions
+## CMS & Blog Tables
 
 ### `audit_log`
 | Column | Type | Notes |
@@ -374,7 +373,7 @@ CREATE TYPE payment_option AS ENUM ('full', 'deposit');
 | status_code | int | 301 or 302 |
 | is_active | boolean | |
 
-### RLS (Part 3)
+### RLS (CMS & Blog)
 - Admin/editor RLS policies for all tables
 - Blog tables: public read only for published posts where `published_at <= now()`
 - Audit log: admin read only

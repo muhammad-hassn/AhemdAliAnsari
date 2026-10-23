@@ -20,6 +20,7 @@ export function AnnouncementBar({ text = ANNOUNCEMENT_TEXT }: AnnouncementBarPro
       </div>
       <button
         type="button"
+        suppressHydrationWarning
         onClick={() => setIsVisible(false)}
         aria-label="Dismiss announcement"
         className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-ivory/60 hover:text-ivory transition-colors cursor-pointer"

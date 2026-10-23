@@ -1,11 +1,22 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getProductBySlug, getRelatedProducts } from "@/server/queries/products";
+import {
+  getProductBySlug,
+  getRelatedProducts,
+  getAllProductSlugs,
+} from "@/server/queries/products";
 import { getCollections } from "@/server/queries/collections";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { ProductView } from "@/components/product/ProductView";
 import { RelatedProducts } from "@/components/product/RelatedProducts";
+
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const slugs = await getAllProductSlugs();
+  return slugs.map((slug) => ({ slug }));
+}
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;

@@ -1,5 +1,7 @@
 import "server-only";
 
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { createPublicClient } from "@/lib/supabase/server";
 import type { Product, ShopFilters } from "@/types";
 import { SEED_PRODUCTS, SEED_COLLECTIONS } from "./seed-data";
@@ -130,7 +132,8 @@ function getFilteredSeedProducts(
   };
 }
 
-export async function getProductBySlug(slug: string): Promise<Product | null> {
+// React cache deduplicates repeated calls within a single render pass (e.g. generateMetadata + page)
+export const getProductBySlug = cache(async (slug: string): Promise<Product | null> => {
   try {
     const supabase = createPublicClient();
     const { data, error } = await supabase
@@ -147,34 +150,38 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   } catch {
     return SEED_PRODUCTS.find((p) => p.slug === slug && p.is_active) ?? null;
   }
-}
+});
 
-export async function getFeaturedProducts(collectionSlug?: string): Promise<Product[]> {
-  try {
-    const supabase = createPublicClient();
-    let query = supabase
-      .from("products")
-      .select("*")
-      .eq("is_active", true)
-      .eq("is_featured", true);
+export const getFeaturedProducts = unstable_cache(
+  async (collectionSlug?: string): Promise<Product[]> => {
+    try {
+      const supabase = createPublicClient();
+      let query = supabase
+        .from("products")
+        .select("*")
+        .eq("is_active", true)
+        .eq("is_featured", true);
 
-    if (collectionSlug) {
-      const col = SEED_COLLECTIONS.find((c) => c.slug === collectionSlug);
-      if (col) {
-        query = query.eq("collection_id", col.id);
+      if (collectionSlug) {
+        const col = SEED_COLLECTIONS.find((c) => c.slug === collectionSlug);
+        if (col) {
+          query = query.eq("collection_id", col.id);
+        }
       }
-    }
 
-    const { data, error } = await query.limit(8);
+      const { data, error } = await query.limit(8);
 
-    if (error || !data || data.length === 0) {
+      if (error || !data || data.length === 0) {
+        return getFeaturedSeedProducts(collectionSlug);
+      }
+      return data as Product[];
+    } catch {
       return getFeaturedSeedProducts(collectionSlug);
     }
-    return data as Product[];
-  } catch {
-    return getFeaturedSeedProducts(collectionSlug);
-  }
-}
+  },
+  ["featured_products"],
+  { tags: ["products"], revalidate: 3600 },
+);
 
 function getFeaturedSeedProducts(collectionSlug?: string): Product[] {
   let list = SEED_PRODUCTS.filter((p) => p.is_active && p.is_featured);

@@ -70,6 +70,7 @@ export function TestimonialsSection({
               <div className="flex items-center gap-4 pt-4">
                 <button
                   type="button"
+                  suppressHydrationWarning
                   onClick={prev}
                   aria-label="Previous testimonial"
                   className="h-10 w-10 flex items-center justify-center border border-hairline text-ink hover:bg-hairline/40 transition-colors cursor-pointer"
@@ -81,6 +82,7 @@ export function TestimonialsSection({
                 </span>
                 <button
                   type="button"
+                  suppressHydrationWarning
                   onClick={next}
                   aria-label="Next testimonial"
                   className="h-10 w-10 flex items-center justify-center border border-hairline text-ink hover:bg-hairline/40 transition-colors cursor-pointer"

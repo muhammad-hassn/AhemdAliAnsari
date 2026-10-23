@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { FormSection } from "@/components/admin/FormSection";
 import { AdminSeoPanel } from "@/components/admin/AdminSeoPanel";
+import { SingleImageUploader } from "@/components/admin/SingleImageUploader";
 import { saveCollectionAction } from "@/server/actions/admin";
 import type { Collection } from "@/types";
 
@@ -21,11 +22,11 @@ export function CollectionForm({ initialCollection }: CollectionFormProps) {
   const [name, setName] = useState(initialCollection?.name || "");
   const [slug, setSlug] = useState(initialCollection?.slug || "");
   const [description, setDescription] = useState(initialCollection?.description || "");
-  const [imageUrl, setImageUrl] = useState(initialCollection?.image_url || "/images/collections/placeholder.jpg");
+  const [imageUrl, setImageUrl] = useState(initialCollection?.image_url || "");
   const [sortOrder, setSortOrder] = useState(initialCollection?.sort_order?.toString() || "0");
 
   const [metaTitle, setMetaTitle] = useState(
-    initialCollection?.name ? `${initialCollection.name} Collection | Zahra Luxe` : "",
+    initialCollection?.name ? `${initialCollection.name} Collection | Ahmed Ali Ansari` : "",
   );
   const [metaDescription, setMetaDescription] = useState(
     initialCollection?.description || "",
@@ -47,6 +48,12 @@ export function CollectionForm({ initialCollection }: CollectionFormProps) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    if (!imageUrl.trim()) {
+      setError("Please upload a collection cover image from your device.");
+      setLoading(false);
+      return;
+    }
 
     const res = await saveCollectionAction({
       id: initialCollection?.id,
@@ -119,19 +126,17 @@ export function CollectionForm({ initialCollection }: CollectionFormProps) {
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs uppercase tracking-wider text-stone-700 font-medium font-sans mb-1">
-              Cover Image URL (2:3 Portrait) *
-            </label>
-            <Input
-              required
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="/images/collections/noor.jpg"
-            />
-          </div>
-          <div>
+        <div className="space-y-4 pt-2">
+          <SingleImageUploader
+            value={imageUrl}
+            onChange={setImageUrl}
+            bucket="product-images"
+            label="Cover Image (2:3 Portrait) *"
+            helperText="Tap or click to browse an image from your mobile phone or laptop. Supports JPG, PNG, WebP."
+            aspectRatioClass="aspect-[2/3] max-w-xs"
+          />
+
+          <div className="max-w-xs">
             <label className="block text-xs uppercase tracking-wider text-stone-700 font-medium font-sans mb-1">
               Display Sort Order
             </label>
