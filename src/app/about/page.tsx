@@ -25,11 +25,11 @@ export default async function AboutPage() {
       {/* Editorial Hero */}
       <section className="relative w-full h-[65vh] min-h-[440px] flex items-center justify-center overflow-hidden bg-ink text-ivory">
         <Image
-          src={page?.hero_image_url ?? "/images/craftsmanship.jpg"}
+          src="/images/about-hero.jpg"
           alt="Ahmed Ali Ansari Handcrafting Atelier"
           fill
           priority
-          className="object-cover opacity-40"
+          className="object-cover opacity-50"
         />
         <div className="relative z-10 text-center px-4 max-w-2xl mx-auto space-y-4">
           <span className="text-xs uppercase tracking-[0.2em] text-gold font-sans font-medium">

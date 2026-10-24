@@ -44,6 +44,7 @@ export interface Testimonial {
   text: string;
   rating: number;
   is_active: boolean;
+  avatar_url?: string | null;
 }
 
 export interface SiteSetting {

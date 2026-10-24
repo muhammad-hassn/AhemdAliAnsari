@@ -11,7 +11,7 @@ import { FeaturedProductsSection } from "@/components/home/FeaturedProductsSecti
 import { CraftsmanshipSection } from "@/components/home/CraftsmanshipSection";
 import { WhyUsSection } from "@/components/home/WhyUsSection";
 import { TestimonialsSection } from "@/components/home/TestimonialsSection";
-import { InstagramStrip } from "@/components/home/InstagramStrip";
+
 import { PromotionalPopup } from "@/components/home/PromotionalPopup";
 
 export default async function HomePage() {
@@ -52,8 +52,7 @@ export default async function HomePage() {
       {/* 7. Testimonials */}
       <TestimonialsSection testimonials={testimonials} />
 
-      {/* 8. Instagram Strip */}
-      <InstagramStrip />
+
     </div>
   );
 }

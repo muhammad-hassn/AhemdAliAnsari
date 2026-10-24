@@ -1,4 +1,4 @@
-import "server-only";
+﻿import "server-only";
 
 import type {
   Collection,
@@ -324,31 +324,27 @@ export const SEED_CURRENCIES: CurrencyRate[] = [
 export const SEED_TESTIMONIALS: Testimonial[] = [
   {
     id: "d0000001-0000-0000-0000-000000000001",
-    name: "Fatima Al-Rashid",
-    text: "The craftsmanship of the Zoya peshwas surpassed all expectations. The zardozi details are sublime, and having it delivered in Dubai within 10 days was immaculate service.",
+    name: "Rimsha",
+    text: "I received my dress from Ahmedallansari and I absolutely love it! The design is just like in the pictures — elegant, well-stitched and the fabric is good. Delivery was surprisingly fast. Definitely ordering again.",
     rating: 5,
     is_active: true,
+    avatar_url: "/images/reviews/rimsha.jpg",
   },
   {
     id: "d0000002-0000-0000-0000-000000000002",
-    name: "Mahnoor Tariq",
-    text: "Ordered the Meera Velvet anarkali for my brother’s reception. The velvet weight, rich burgundy hue, and custom sizing fit like second skin. Truly regal couture.",
+    name: "Faiza Khan",
+    text: "The dress I ordered fitted me perfectly and looked so classy at the event. The customer service was very helpful when I asked about size and delivery time. Overall a very satisfying purchase — highly recommend Ahmedallansari.",
     rating: 5,
     is_active: true,
+    avatar_url: "/images/reviews/faiza.jpg",
   },
   {
     id: "d0000003-0000-0000-0000-000000000003",
-    name: "Ayesha Siddiqui",
-    text: "Ali Ahmed Ansari brings old-world Lahore grandeur with modern finesse. The fabric quality is exceptional — pure silk and delicate marori work that pictures don’t do justice.",
+    name: "Alizey",
+    text: "What I got was exactly what I saw on their page. The colors, stitching, and overall finish were just like the pictures. I've already recommended this to friends and will definitely buy again.",
     rating: 5,
     is_active: true,
-  },
-  {
-    id: "d0000004-0000-0000-0000-000000000004",
-    name: "Dr. Shireen Khan",
-    text: "I purchased the Ayla Gharara from London. The packaging was bridal-grade, delivery seamless, and the embroidery was genuine hand-done artisan work. Outstanding!",
-    rating: 5,
-    is_active: true,
+    avatar_url: "/images/reviews/alizey.jpg",
   },
 ];
 
