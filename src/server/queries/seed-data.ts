@@ -1,4 +1,4 @@
-﻿import "server-only";
+import "server-only";
 
 import type {
   Collection,
@@ -356,7 +356,7 @@ export const SEED_HERO_SLIDES: HeroSlide[] = [
   {
     id: "e0000001-0000-0000-0000-000000000001",
     desktop_image_url: "/images/hero/hero-1.jpg",
-    mobile_image_url: "/images/hero/hero-1.jpg",
+    mobile_image_url: "/images/hero/hero-1-mobile.jpg",
     heading: "Timeless Elegance, Every Day",
     subheading: "Delicate tone-on-tone embroidery crafted on flowing luxury fabrics",
     cta_text: "Shop Collection",
@@ -367,7 +367,7 @@ export const SEED_HERO_SLIDES: HeroSlide[] = [
   {
     id: "e0000002-0000-0000-0000-000000000002",
     desktop_image_url: "/images/hero/hero-2.jpg",
-    mobile_image_url: "/images/hero/hero-2.jpg",
+    mobile_image_url: "/images/hero/hero-2-mobile.jpg",
     heading: "Crafted in Every Detail",
     subheading: "Deep emerald green with intricate thread embroidery and refined finishes",
     cta_text: "Explore Emerald Luxe",
@@ -378,7 +378,7 @@ export const SEED_HERO_SLIDES: HeroSlide[] = [
   {
     id: "e0000003-0000-0000-0000-000000000003",
     desktop_image_url: "/images/hero/hero-3.jpg",
-    mobile_image_url: "/images/hero/hero-3.jpg",
+    mobile_image_url: "/images/hero/hero-3-mobile.jpg",
     heading: "Your Everyday, Elevated",
     subheading: "Fresh dusty-rose and floral prints tailored for graceful contemporary living",
     cta_text: "Discover Everyday Pret",
@@ -389,7 +389,7 @@ export const SEED_HERO_SLIDES: HeroSlide[] = [
   {
     id: "e0000004-0000-0000-0000-000000000004",
     desktop_image_url: "/images/hero/hero-4.jpg",
-    mobile_image_url: "/images/hero/hero-4.jpg",
+    mobile_image_url: "/images/hero/hero-4-mobile.jpg",
     heading: "Elegance That Stands Apart",
     subheading: "Antique-silver embroidery on dramatic midnight black silhouettes",
     cta_text: "Shop Signature Black",
@@ -400,7 +400,7 @@ export const SEED_HERO_SLIDES: HeroSlide[] = [
   {
     id: "e0000005-0000-0000-0000-000000000005",
     desktop_image_url: "/images/hero/hero-5.jpg",
-    mobile_image_url: "/images/hero/hero-5.jpg",
+    mobile_image_url: "/images/hero/hero-5-mobile.jpg",
     heading: "Make Every Occasion Special",
     subheading: "Deep burgundy formal ensembles accented with antique-gold artistry",
     cta_text: "View Festive Collection",
