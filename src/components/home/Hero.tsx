@@ -106,7 +106,7 @@ export function Hero({ slides }: HeroProps) {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       style={{ height: heroHeight, minHeight: heroHeight }}
-      className="relative w-full overflow-hidden bg-ink text-ivory select-none"
+      className="relative w-full overflow-hidden bg-ink text-ivory select-none sm:!h-auto sm:!min-h-0 sm:aspect-[16/9]"
     >
       {/* Background Slides Cross-Fade */}
       <AnimatePresence mode="wait">
@@ -115,20 +115,14 @@ export function Hero({ slides }: HeroProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: prefersReducedMotion ? 0 : 1.1, ease: "easeInOut" }}
+          transition={{ duration: prefersReducedMotion ? 0 : 1.0, ease: "easeInOut" }}
           className="absolute inset-0 z-0"
         >
-          {/* Ken Burns effect on the image */}
-          <motion.div
-            initial={prefersReducedMotion ? {} : { scale: 1.0 }}
-            animate={prefersReducedMotion ? {} : { scale: 1.03 }}
-            transition={{ duration: 7, ease: "linear" }}
-            style={{ transformOrigin: "center top" }}
-            className="relative h-full w-full"
-          >
+          {/* Image Container: 100% scale so no edges or upper areas are cropped during slide transitions */}
+          <div className="relative h-full w-full">
             {slide.mobile_image_url ? (
               <>
-                {/* Mobile-optimized image (9:16 banner framing: Upper-right / center model) */}
+                {/* Mobile-optimized image (9:16 vertical fold framing) */}
                 <div className="block sm:hidden relative h-full w-full">
                   <Image
                     src={slide.mobile_image_url}
@@ -139,7 +133,7 @@ export function Hero({ slides }: HeroProps) {
                     className="object-cover object-[62%_12%]"
                   />
                 </div>
-                {/* Desktop/Tablet image: Top-aligned so head, face and top of ensemble are fully visible without any cutoff */}
+                {/* Desktop image: 16:9 container matches 16:9 image 1:1 so 100% complete image is shown */}
                 <div className="hidden sm:block relative h-full w-full">
                   <Image
                     src={slide.desktop_image_url}
@@ -147,7 +141,7 @@ export function Hero({ slides }: HeroProps) {
                     fill
                     priority
                     sizes="100vw"
-                    className="object-cover sm:object-top"
+                    className="object-cover object-center"
                   />
                 </div>
               </>
@@ -158,10 +152,10 @@ export function Hero({ slides }: HeroProps) {
                 fill
                 priority
                 sizes="100vw"
-                className="object-cover object-[62%_12%] sm:object-top"
+                className="object-cover object-[62%_12%] sm:object-center"
               />
             )}
-          </motion.div>
+          </div>
 
           {/* Luxury Editorial Scrim / Gradients:
               - Mobile: Smooth gradient from bottom to top so lower-left text is 100% legible,
