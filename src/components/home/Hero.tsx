@@ -27,8 +27,18 @@ export function Hero({ slides }: HeroProps) {
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchEndX, setTouchEndX] = useState<number | null>(null);
   const [heroHeight, setHeroHeight] = useState<string>("calc(100svh - 5.5rem)");
+  const [isDesktop, setIsDesktop] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    const checkDesktop = () => {
+      setIsDesktop(window.innerWidth >= 640);
+    };
+    checkDesktop();
+    window.addEventListener("resize", checkDesktop);
+    return () => window.removeEventListener("resize", checkDesktop);
+  }, []);
 
   const nextSlide = useCallback(() => {
     setCurrent((prev) => (prev + 1) % slides.length);
@@ -44,11 +54,10 @@ export function Hero({ slides }: HeroProps) {
     return () => clearInterval(interval);
   }, [slides.length, nextSlide]);
 
-  // Dynamically calculate exact remaining viewport height so the Hero fills
-  // 100% of the screen down to the bottom edge, keeping subsequent sections below the fold.
+  // Dynamically calculate exact remaining viewport height ONLY for mobile screens
   useEffect(() => {
     const updateHeight = () => {
-      if (heroRef.current) {
+      if (heroRef.current && window.innerWidth < 640) {
         const rect = heroRef.current.getBoundingClientRect();
         const topDistance = rect.top + window.scrollY;
         const availableHeight = window.innerHeight - topDistance;
@@ -105,8 +114,8 @@ export function Hero({ slides }: HeroProps) {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      style={{ height: heroHeight, minHeight: heroHeight }}
-      className="relative w-full overflow-hidden bg-ink text-ivory select-none sm:!h-[620px] lg:!h-[680px] xl:!h-[720px] sm:!min-h-[520px] sm:!max-h-[740px]"
+      style={isDesktop ? undefined : { height: heroHeight, minHeight: heroHeight }}
+      className="relative w-full overflow-hidden bg-ink text-ivory select-none sm:h-[480px] md:h-[520px] lg:h-[560px]"
     >
       {/* Background Slides Cross-Fade */}
       <AnimatePresence mode="wait">
@@ -204,8 +213,8 @@ export function Hero({ slides }: HeroProps) {
           - Mobile: Pinned to lower-left / bottom with sleek compact spacing
           - Desktop: Positioned on left with expansive editorial layout
       */}
-      <div className="relative z-10 flex h-full items-end justify-start pb-5 sm:pb-12 lg:pb-16">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-12 w-full flex flex-col items-start gap-2.5 sm:gap-5">
+      <div className="relative z-10 flex h-full items-end justify-start pb-5 sm:pb-8 lg:pb-10">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-12 w-full flex flex-col items-start gap-2 sm:gap-3.5">
           {/* Eyebrow theme badge */}
           <div className="flex items-center gap-2">
             <span className="h-[1px] w-5 sm:w-6 bg-gold" />
@@ -214,11 +223,11 @@ export function Hero({ slides }: HeroProps) {
             </span>
           </div>
 
-          <div className="space-y-1.5 sm:space-y-3.5 max-w-xl lg:max-w-2xl">
+          <div className="space-y-1 sm:space-y-2 max-w-xl lg:max-w-2xl">
             <TextReveal
               text={slide.heading}
               as="h1"
-              className="font-heading text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-light text-ivory tracking-tight leading-[1.12] sm:leading-[1.0]"
+              className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-ivory tracking-tight leading-[1.12] sm:leading-[1.05]"
             />
             {slide.subheading && (
               <p className="text-xs sm:text-sm lg:text-base text-ivory/80 font-sans font-light max-w-sm sm:max-w-lg leading-relaxed line-clamp-2 sm:line-clamp-none">
