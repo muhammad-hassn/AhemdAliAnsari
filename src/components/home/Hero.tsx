@@ -106,7 +106,7 @@ export function Hero({ slides }: HeroProps) {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       style={{ height: heroHeight, minHeight: heroHeight }}
-      className="relative w-full overflow-hidden bg-ink text-ivory select-none sm:!h-auto sm:!min-h-0 sm:aspect-[16/9]"
+      className="relative w-full overflow-hidden bg-ink text-ivory select-none sm:!h-[620px] lg:!h-[680px] xl:!h-[720px] sm:!min-h-[520px] sm:!max-h-[740px]"
     >
       {/* Background Slides Cross-Fade */}
       <AnimatePresence mode="wait">
@@ -118,11 +118,11 @@ export function Hero({ slides }: HeroProps) {
           transition={{ duration: prefersReducedMotion ? 0 : 1.0, ease: "easeInOut" }}
           className="absolute inset-0 z-0"
         >
-          {/* Image Container: 100% scale so no edges or upper areas are cropped during slide transitions */}
+          {/* Image Container: Preserves complete image on desktop without cropping */}
           <div className="relative h-full w-full">
             {slide.mobile_image_url ? (
               <>
-                {/* Mobile-optimized image (9:16 vertical fold framing) */}
+                {/* Mobile-optimized image (9:16 vertical fold framing - UNTOUCHED) */}
                 <div className="block sm:hidden relative h-full w-full">
                   <Image
                     src={slide.mobile_image_url}
@@ -133,27 +133,59 @@ export function Hero({ slides }: HeroProps) {
                     className="object-cover object-[62%_12%]"
                   />
                 </div>
-                {/* Desktop image: 16:9 container matches 16:9 image 1:1 so 100% complete image is shown */}
+                {/* Desktop image: Complete uncropped image on the right side with ambient backdrop */}
                 <div className="hidden sm:block relative h-full w-full">
+                  <Image
+                    src={slide.desktop_image_url}
+                    alt=""
+                    fill
+                    priority
+                    aria-hidden="true"
+                    className="object-cover blur-2xl opacity-30 scale-105 pointer-events-none"
+                  />
                   <Image
                     src={slide.desktop_image_url}
                     alt={slide.heading}
                     fill
                     priority
                     sizes="100vw"
-                    className="object-cover object-center"
+                    className="object-contain sm:object-right"
                   />
                 </div>
               </>
             ) : (
-              <Image
-                src={slide.desktop_image_url}
-                alt={slide.heading}
-                fill
-                priority
-                sizes="100vw"
-                className="object-cover object-[62%_12%] sm:object-center"
-              />
+              <>
+                {/* Fallback Mobile */}
+                <div className="block sm:hidden relative h-full w-full">
+                  <Image
+                    src={slide.desktop_image_url}
+                    alt={slide.heading}
+                    fill
+                    priority
+                    sizes="100vw"
+                    className="object-cover object-[62%_12%]"
+                  />
+                </div>
+                {/* Fallback Desktop */}
+                <div className="hidden sm:block relative h-full w-full">
+                  <Image
+                    src={slide.desktop_image_url}
+                    alt=""
+                    fill
+                    priority
+                    aria-hidden="true"
+                    className="object-cover blur-2xl opacity-30 scale-105 pointer-events-none"
+                  />
+                  <Image
+                    src={slide.desktop_image_url}
+                    alt={slide.heading}
+                    fill
+                    priority
+                    sizes="100vw"
+                    className="object-contain sm:object-right"
+                  />
+                </div>
+              </>
             )}
           </div>
 
