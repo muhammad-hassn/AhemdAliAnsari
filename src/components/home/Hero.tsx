@@ -121,8 +121,9 @@ export function Hero({ slides }: HeroProps) {
           {/* Ken Burns effect on the image */}
           <motion.div
             initial={prefersReducedMotion ? {} : { scale: 1.0 }}
-            animate={prefersReducedMotion ? {} : { scale: 1.04 }}
+            animate={prefersReducedMotion ? {} : { scale: 1.03 }}
             transition={{ duration: 7, ease: "linear" }}
+            style={{ transformOrigin: "center top" }}
             className="relative h-full w-full"
           >
             {slide.mobile_image_url ? (
@@ -138,7 +139,7 @@ export function Hero({ slides }: HeroProps) {
                     className="object-cover object-[62%_12%]"
                   />
                 </div>
-                {/* Desktop/Tablet image (16:9 banner framing: Right-side model) */}
+                {/* Desktop/Tablet image: Top-aligned so head, face and top of ensemble are fully visible without any cutoff */}
                 <div className="hidden sm:block relative h-full w-full">
                   <Image
                     src={slide.desktop_image_url}
@@ -146,7 +147,7 @@ export function Hero({ slides }: HeroProps) {
                     fill
                     priority
                     sizes="100vw"
-                    className="object-cover sm:object-right sm:object-[78%_center]"
+                    className="object-cover sm:object-top"
                   />
                 </div>
               </>
@@ -157,7 +158,7 @@ export function Hero({ slides }: HeroProps) {
                 fill
                 priority
                 sizes="100vw"
-                className="object-cover object-[62%_12%] sm:object-right sm:object-[78%_center]"
+                className="object-cover object-[62%_12%] sm:object-top"
               />
             )}
           </motion.div>
