@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -34,7 +34,7 @@ export const useCurrencyStore = create<CurrencyStore>()(
         }),
     }),
     {
-      name: "zahra-currency-storage",
+      name: "ali-ahmed-currency-storage",
     },
   ),
 );

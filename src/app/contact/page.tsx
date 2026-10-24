@@ -1,4 +1,4 @@
-import { buildMetadata } from "@/lib/seo";
+﻿import { buildMetadata } from "@/lib/seo";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { getSiteSettings } from "@/server/queries/settings";
@@ -20,7 +20,7 @@ import { MessageSquare, Mail, Phone, MapPin } from "lucide-react";
 
 export const metadata = buildMetadata({
   title: "Contact Concierge",
-  description: "Connect with Zahra Luxe ateliers in Lahore and Karachi for bespoke bridal and formal inquiries.",
+  description: "Connect with Ali Ahmed Ansari ateliers in Lahore and Karachi for bespoke bridal and formal inquiries.",
   path: "/contact",
 });
 

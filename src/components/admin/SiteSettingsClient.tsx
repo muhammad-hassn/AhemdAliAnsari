@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { FormSection } from "./FormSection";
@@ -61,7 +61,7 @@ export function SiteSettingsClient({ initialSettings }: SiteSettingsClientProps)
               value={settings.brand_name || ""}
               onChange={(e) => handleChange("brand_name", e.target.value)}
               className="w-full text-xs px-3 py-2 border border-stone-200 bg-white focus:outline-none focus:border-stone-900"
-              placeholder="Zahra Luxe"
+              placeholder="Ali Ahmed Ansari"
             />
           </div>
 
@@ -141,7 +141,7 @@ export function SiteSettingsClient({ initialSettings }: SiteSettingsClientProps)
               value={settings.contact_email || ""}
               onChange={(e) => handleChange("contact_email", e.target.value)}
               className="w-full text-xs px-3 py-2 border border-stone-200 bg-white focus:outline-none focus:border-stone-900"
-              placeholder="care@zahraluxe.com"
+              placeholder="care@ahmedaliansari.com"
             />
           </div>
 
@@ -175,7 +175,7 @@ export function SiteSettingsClient({ initialSettings }: SiteSettingsClientProps)
               value={settings.instagram_url || ""}
               onChange={(e) => handleChange("instagram_url", e.target.value)}
               className="w-full text-xs px-3 py-2 border border-stone-200 bg-white focus:outline-none focus:border-stone-900"
-              placeholder="https://instagram.com/zahraluxe"
+              placeholder="https://instagram.com/AliAhmedAnsari"
             />
           </div>
 
@@ -188,7 +188,7 @@ export function SiteSettingsClient({ initialSettings }: SiteSettingsClientProps)
               value={settings.facebook_url || ""}
               onChange={(e) => handleChange("facebook_url", e.target.value)}
               className="w-full text-xs px-3 py-2 border border-stone-200 bg-white focus:outline-none focus:border-stone-900"
-              placeholder="https://facebook.com/zahraluxe"
+              placeholder="https://facebook.com/AliAhmedAnsari"
             />
           </div>
         </div>

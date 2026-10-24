@@ -1,4 +1,4 @@
-import "server-only";
+﻿import "server-only";
 
 import type {
   Collection,
@@ -339,7 +339,7 @@ export const SEED_TESTIMONIALS: Testimonial[] = [
   {
     id: "d0000003-0000-0000-0000-000000000003",
     name: "Ayesha Siddiqui",
-    text: "Zahra Luxe brings old-world Lahore grandeur with modern finesse. The fabric quality is exceptional — pure silk and delicate marori work that pictures don’t do justice.",
+    text: "Ali Ahmed Ansari brings old-world Lahore grandeur with modern finesse. The fabric quality is exceptional — pure silk and delicate marori work that pictures don’t do justice.",
     rating: 5,
     is_active: true,
   },

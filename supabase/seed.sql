@@ -223,7 +223,7 @@ values
   (
     'd0000003-0000-0000-0000-000000000003',
     'Ayesha Siddiqui',
-    'Zahra Luxe brings old-world Lahore grandeur with modern finesse. The fabric quality is exceptional — pure silk and delicate marori work that pictures don’t do justice.',
+    'Ali Ahmed Ansari brings old-world Lahore grandeur with modern finesse. The fabric quality is exceptional — pure silk and delicate marori work that pictures don’t do justice.',
     5,
     true
   ),
@@ -243,15 +243,15 @@ on conflict (id) do update set
 -- 5. Site Settings
 insert into public.site_settings (key, value, updated_at)
 values
-  ('brand_name', 'Zahra Luxe', now()),
+  ('brand_name', 'Ali Ahmed Ansari', now()),
   ('tagline', 'Embroidered Formal Wear', now()),
   ('announcement_text', 'Complimentary delivery on orders above PKR 15,000 within Pakistan', now()),
   ('whatsapp_number', '+923001234567', now()),
-  ('contact_email', 'hello@zahraluxe.com', now()),
+  ('contact_email', 'hello@ahmedaliansari.com', now()),
   ('contact_phone', '+92 300 123 4567', now()),
   ('contact_address', '26-B, Gulberg III, Lahore, Punjab, Pakistan', now()),
-  ('instagram_url', 'https://instagram.com/zahraluxe', now()),
-  ('facebook_url', 'https://facebook.com/zahraluxe', now())
+  ('instagram_url', 'https://instagram.com/aliahmedansari', now()),
+  ('facebook_url', 'https://facebook.com/aliahmedansari', now())
 on conflict (key) do update set
   value = excluded.value,
   updated_at = excluded.updated_at;
@@ -328,18 +328,18 @@ values
     'fa000001-0000-0000-0000-000000000001',
     'about',
     'Our Heritage & Craftsmanship',
-    '<h2>The House of Zahra Luxe</h2><p>Born in the storied atelier alleys of Lahore, Zahra Luxe stands as a testament to the preservation and celebration of South Asian haute couture. Each stitch honours the time-honoured techniques passed down through lineages of master artisans.</p>',
-    'About Zahra Luxe | Heritage Eastern Couture',
-    'Discover the legacy of master craftsmanship and artisanal embroideries behind Zahra Luxe.',
+    '<h2>The House of Ali Ahmed Ansari</h2><p>Born in the storied atelier alleys of Lahore, Ali Ahmed Ansari stands as a testament to the preservation and celebration of South Asian haute couture. Each stitch honours the time-honoured techniques passed down through lineages of master artisans.</p>',
+    'About Ali Ahmed Ansari | Heritage Eastern Couture',
+    'Discover the legacy of master craftsmanship and artisanal embroideries behind Ali Ahmed Ansari.',
     now()
   ),
   (
     'fa000002-0000-0000-0000-000000000002',
     'privacy',
     'Privacy Policy',
-    '<h2>Privacy & Data Protection</h2><p>Your privacy is of supreme importance to us. Zahra Luxe collects and processes personal information solely to fulfill orders, provide concierge customer care, and communicate exclusive previews.</p>',
-    'Privacy Policy | Zahra Luxe',
-    'Learn how Zahra Luxe safeguards your personal data and privacy.',
+    '<h2>Privacy & Data Protection</h2><p>Your privacy is of supreme importance to us. Ali Ahmed Ansari collects and processes personal information solely to fulfill orders, provide concierge customer care, and communicate exclusive previews.</p>',
+    'Privacy Policy | Ali Ahmed Ansari',
+    'Learn how Ali Ahmed Ansari safeguards your personal data and privacy.',
     now()
   ),
   (
@@ -347,7 +347,7 @@ values
     'refund',
     'Refund & Exchange Policy',
     '<h2>Bespoke Orders & Exchanges</h2><p>Due to the customized nature and artisanal hand-work of each ensemble, all bridal and made-to-order couture items are final sale. We offer complimentary fitting alterations on all bridal wear.</p>',
-    'Refund Policy | Zahra Luxe',
+    'Refund Policy | Ali Ahmed Ansari',
     'Our policy regarding bespoke couture, exchanges, and tailoring alterations.',
     now()
   ),
@@ -355,9 +355,9 @@ values
     'fa000004-0000-0000-0000-000000000004',
     'terms',
     'Terms of Service',
-    '<h2>Terms & Conditions</h2><p>By engaging with Zahra Luxe online or at our Lahore atelier, you agree to these terms governing custom orders, delivery schedules, and intellectual property.</p>',
-    'Terms of Service | Zahra Luxe',
-    'Terms and conditions of ordering and using the Zahra Luxe boutique.',
+    '<h2>Terms & Conditions</h2><p>By engaging with Ali Ahmed Ansari online or at our Lahore atelier, you agree to these terms governing custom orders, delivery schedules, and intellectual property.</p>',
+    'Terms of Service | Ali Ahmed Ansari',
+    'Terms and conditions of ordering and using the Ali Ahmed Ansari boutique.',
     now()
   ),
   (
@@ -365,7 +365,7 @@ values
     'shipping',
     'Shipping & Delivery',
     '<h2>Worldwide White-Glove Delivery</h2><p>We deliver globally with tracked express courier partners. Domestic orders in Pakistan arrive within 3-5 business days of completion. International orders arrive within 7-10 business days.</p>',
-    'Shipping & Delivery | Zahra Luxe',
+    'Shipping & Delivery | Ali Ahmed Ansari',
     'Global shipping timelines, white-glove packaging, and delivery policies.',
     now()
   )

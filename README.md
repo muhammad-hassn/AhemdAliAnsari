@@ -1,4 +1,4 @@
-# Zahra Luxe — Pakistani Luxury Eastern-Wear Haute Couture
+# Ali Ahmed Ansari — Pakistani Luxury Eastern-Wear Haute Couture
 
 An editorial, high-performance e-commerce boutique and content management platform for Pakistani luxury bridal, festive, and formal wear, built with Next.js 16 (App Router), Tailwind CSS v4, TypeScript, Supabase, and Motion.
 
@@ -34,9 +34,9 @@ Required variables:
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase anon public API key
 - `SUPABASE_SERVICE_ROLE_KEY`: Supabase service role secret (server-side only)
 - `RESEND_API_KEY`: API key from Resend for transactional email notifications
-- `EMAIL_FROM`: Verified sender address (e.g. `orders@zahraluxe.com`)
+- `EMAIL_FROM`: Verified sender address (e.g. `orders@ahmedaliansari.com`)
 - `ADMIN_NOTIFY_EMAIL`: Admin email for new order alerts
-- `NEXT_PUBLIC_SITE_URL`: Production site URL (default: `https://zahraluxe.com`)
+- `NEXT_PUBLIC_SITE_URL`: Production site URL (default: `https://ahmedaliansari.com`)
 
 ### 2. Database Migrations & Seeds
 

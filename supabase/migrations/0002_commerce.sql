@@ -1,4 +1,4 @@
-﻿-- ============================================================
+-- ============================================================
 -- Part 2: Commerce & Content
 -- ============================================================
 
@@ -142,9 +142,9 @@ CREATE POLICY "payment_methods_public_select" ON payment_methods FOR SELECT USIN
 
 INSERT INTO payment_methods (code, label, instructions, details, allowed_country_codes, requires_proof, sort_order) VALUES
   ('cod', 'Cash on Delivery', 'Pay in cash when your order is delivered.', '{}', ARRAY['PK'], false, 1),
-  ('bank_transfer', 'Bank Transfer', 'Transfer the amount to the bank account below, then upload your payment proof.', '{"bank": "Meezan Bank", "account_title": "Zahra Luxe (Demo)", "account_number": "0000-0000000-000", "iban": "PK00MEZN0000000000000000"}', NULL, true, 2),
-  ('easypaisa', 'Easypaisa', 'Send the amount to the Easypaisa account below, then upload your payment proof.', '{"account_title": "Zahra Luxe (Demo)", "mobile_number": "0300-0000000"}', NULL, true, 3),
-  ('jazzcash', 'JazzCash', 'Send the amount to the JazzCash account below, then upload your payment proof.', '{"account_title": "Zahra Luxe (Demo)", "mobile_number": "0311-0000000"}', NULL, true, 4);
+  ('bank_transfer', 'Bank Transfer', 'Transfer the amount to the bank account below, then upload your payment proof.', '{"bank": "Meezan Bank", "account_title": "Ali Ahmed Ansari (Demo)", "account_number": "0000-0000000-000", "iban": "PK00MEZN0000000000000000"}', NULL, true, 2),
+  ('easypaisa', 'Easypaisa', 'Send the amount to the Easypaisa account below, then upload your payment proof.', '{"account_title": "Ali Ahmed Ansari (Demo)", "mobile_number": "0300-0000000"}', NULL, true, 3),
+  ('jazzcash', 'JazzCash', 'Send the amount to the JazzCash account below, then upload your payment proof.', '{"account_title": "Ali Ahmed Ansari (Demo)", "mobile_number": "0311-0000000"}', NULL, true, 4);
 
 -- Order Number Sequence
 CREATE SEQUENCE order_number_seq START 1000;

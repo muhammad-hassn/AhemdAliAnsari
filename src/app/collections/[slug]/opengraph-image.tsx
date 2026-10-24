@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getCollectionBySlug } from "@/server/queries/collections";
 
-export const alt = "Zahra Luxe Collection";
+export const alt = "Ali Ahmed Ansari Collection";
 export const size = {
   width: 1200,
   height: 630,
@@ -57,7 +57,7 @@ export default async function Image({
             marginBottom: "24px",
           }}
         >
-          Z A H R A &nbsp; L U X E &nbsp; C O L L E C T I O N
+          A L I &nbsp; A H M E D &nbsp; A N S A R I &nbsp; C O L L E C T I O N
         </div>
 
         <div

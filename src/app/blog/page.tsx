@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { format } from "date-fns";
@@ -6,13 +6,13 @@ import { Clock, ArrowRight } from "lucide-react";
 import { getBlogPosts, getFeaturedBlogPost, getBlogCategories } from "@/server/queries/blog";
 
 export const metadata: Metadata = {
-  title: "The Atelier Journal | Zahra Luxe",
+  title: "The Atelier Journal | Ali Ahmed Ansari",
   description:
-    "Explore the craftsmanship, heritage embroidery techniques, bridal styling notes, and festive luxury collections from Zahra Luxe.",
+    "Explore the craftsmanship, heritage embroidery techniques, bridal styling notes, and festive luxury collections from Ali Ahmed Ansari.",
   openGraph: {
-    title: "The Atelier Journal | Zahra Luxe",
+    title: "The Atelier Journal | Ali Ahmed Ansari",
     description:
-      "Explore the craftsmanship, heritage embroidery techniques, bridal styling notes, and festive luxury collections from Zahra Luxe.",
+      "Explore the craftsmanship, heritage embroidery techniques, bridal styling notes, and festive luxury collections from Ali Ahmed Ansari.",
     type: "website",
   },
 };
@@ -130,7 +130,7 @@ export default async function BlogIndexPage({ searchParams }: BlogPageProps) {
                   )}
                   <div>
                     <p className="text-xs font-medium text-stone-900">
-                      {featuredPost.author?.name || "Zahra Luxe Editorial"}
+                      {featuredPost.author?.name || "Ali Ahmed Ansari Editorial"}
                     </p>
                     <p className="text-[10px] text-stone-400">
                       {featuredPost.published_at

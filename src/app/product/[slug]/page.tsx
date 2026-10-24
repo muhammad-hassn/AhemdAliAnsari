@@ -30,15 +30,15 @@ export async function generateMetadata({
 
   if (!product) {
     return {
-      title: "Product Not Found | Zahra Luxe",
+      title: "Product Not Found | Ali Ahmed Ansari",
     };
   }
 
   return {
-    title: `${product.name} | Zahra Luxe`,
+    title: `${product.name} | Ali Ahmed Ansari`,
     description: product.description.slice(0, 160),
     openGraph: {
-      title: `${product.name} | Zahra Luxe`,
+      title: `${product.name} | Ali Ahmed Ansari`,
       description: product.description.slice(0, 160),
       images: product.images[0] ? [{ url: product.images[0] }] : [],
     },
@@ -74,11 +74,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
     sku: product.id,
     brand: {
       "@type": "Brand",
-      name: "Zahra Luxe",
+      name: "Ali Ahmed Ansari",
     },
     offers: {
       "@type": "Offer",
-      url: `https://zahraluxe.com/product/${product.slug}`,
+      url: `https://ahmedaliansari.com/product/${product.slug}`,
       priceCurrency: "PKR",
       price: product.price_pkr,
       availability: product.in_stock
@@ -86,7 +86,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         : "https://schema.org/OutOfStock",
       seller: {
         "@type": "Organization",
-        name: "Zahra Luxe",
+        name: "Ali Ahmed Ansari",
       },
     },
   };
@@ -99,19 +99,19 @@ export default async function ProductPage({ params }: ProductPageProps) {
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: "https://zahraluxe.com",
+        item: "https://ahmedaliansari.com",
       },
       {
         "@type": "ListItem",
         position: 2,
         name: collection?.name || "Shop",
-        item: collection ? `https://zahraluxe.com/collections/${collection.slug}` : "https://zahraluxe.com/shop",
+        item: collection ? `https://ahmedaliansari.com/collections/${collection.slug}` : "https://ahmedaliansari.com/shop",
       },
       {
         "@type": "ListItem",
         position: 3,
         name: product.name,
-        item: `https://zahraluxe.com/product/${product.slug}`,
+        item: `https://ahmedaliansari.com/product/${product.slug}`,
       },
     ],
   };

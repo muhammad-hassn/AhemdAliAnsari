@@ -1,10 +1,10 @@
-import { getBlogPosts } from "@/server/queries/blog";
+﻿import { getBlogPosts } from "@/server/queries/blog";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   const { posts } = await getBlogPosts({ limit: 50 });
-  const siteUrl = "https://zahraluxe.com";
+  const siteUrl = "https://ahmedaliansari.com";
 
   const itemsXml = posts
     .map((post) => {
@@ -20,7 +20,7 @@ export async function GET() {
       <guid isPermaLink="true">${link}</guid>
       <pubDate>${pubDate}</pubDate>
       <description>${escapedExcerpt}</description>
-      <author>${post.author?.name || "Zahra Luxe"}</author>
+      <author>${post.author?.name || "Ali Ahmed Ansari"}</author>
     </item>`;
     })
     .join("\n");
@@ -28,7 +28,7 @@ export async function GET() {
   const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>The Atelier Journal | Zahra Luxe</title>
+    <title>The Atelier Journal | Ali Ahmed Ansari</title>
     <link>${siteUrl}/blog</link>
     <description>Chronicles of Pakistani luxury Eastern-wear craftsmanship and bridal heritage.</description>
     <language>en</language>

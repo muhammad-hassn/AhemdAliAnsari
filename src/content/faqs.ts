@@ -1,4 +1,4 @@
-export interface FAQItem {
+﻿export interface FAQItem {
   question: string;
   answer: string;
   category: "Craftsmanship" | "Ordering & Sizing" | "Shipping & Delivery" | "Payments & Returns";
@@ -7,8 +7,8 @@ export interface FAQItem {
 export const FAQS: FAQItem[] = [
   {
     category: "Craftsmanship",
-    question: "What fabrics and techniques are used in Zahra Luxe formal wear?",
-    answer: "Every Zahra Luxe piece is created using pure hand-woven fabrics including pure silk organza, raw silk 80g, velvet, and handcrafted chiffon. Our embroideries feature traditional zardozi, tilla, dabka, resham threadwork, and hand-placed cutdana pearls created by master artisans in Karachi and Lahore.",
+    question: "What fabrics and techniques are used in Ali Ahmed Ansari formal wear?",
+    answer: "Every Ali Ahmed Ansari piece is created using pure hand-woven fabrics including pure silk organza, raw silk 80g, velvet, and handcrafted chiffon. Our embroideries feature traditional zardozi, tilla, dabka, resham threadwork, and hand-placed cutdana pearls created by master artisans in Karachi and Lahore.",
   },
   {
     category: "Ordering & Sizing",

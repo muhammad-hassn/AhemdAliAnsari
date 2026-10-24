@@ -12,7 +12,7 @@ export function WhyUsSection() {
         <Reveal>
           <div className="text-center max-w-xl mx-auto mb-16 space-y-3">
             <span className="font-sans text-xs uppercase tracking-[0.16em] text-stone">
-              The Zahra Promise
+              The Ali Ahmed Ansari Promise
             </span>
             <Heading as="h2">Excellence in Every Thread</Heading>
           </div>

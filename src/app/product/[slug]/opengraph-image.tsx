@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getProductBySlug } from "@/server/queries/products";
 
-export const alt = "Zahra Luxe Couture";
+export const alt = "Ali Ahmed Ansari Couture";
 export const size = {
   width: 1200,
   height: 630,
@@ -59,7 +59,7 @@ export default async function Image({
             marginBottom: "24px",
           }}
         >
-          Z A H R A &nbsp; L U X E
+          A L I &nbsp; A H M E D &nbsp; A N S A R I
         </div>
 
         <div

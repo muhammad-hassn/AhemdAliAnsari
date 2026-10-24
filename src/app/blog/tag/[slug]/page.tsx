@@ -17,8 +17,8 @@ export async function generateMetadata({ params }: TagPageProps): Promise<Metada
   const name = tag?.name || slug;
 
   return {
-    title: `#${name} — Stories | Zahra Luxe`,
-    description: `Articles tagged with #${name} in the Zahra Luxe Atelier Journal.`,
+    title: `#${name} — Stories | Ali Ahmed Ansari`,
+    description: `Articles tagged with #${name} in the Ali Ahmed Ansari Atelier Journal.`,
   };
 }
 

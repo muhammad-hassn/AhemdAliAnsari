@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+﻿import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getCollections } from "@/server/queries/collections";
 import { getProducts } from "@/server/queries/products";
@@ -11,7 +11,7 @@ import { Pagination } from "@/components/shop/Pagination";
 import { SkeletonGrid } from "@/components/shop/SkeletonGrid";
 
 export const metadata: Metadata = {
-  title: "Shop All Ensembles | Zahra Luxe",
+  title: "Shop All Ensembles | Ali Ahmed Ansari",
   description:
     "Explore our complete couture catalog of handcrafted Pakistani bridal wear, formal peshwas, velvet anarkalis, and festive pret.",
 };

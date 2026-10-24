@@ -1,10 +1,10 @@
-import type { MetadataRoute } from "next";
+﻿import type { MetadataRoute } from "next";
 import { getAllProductSlugs } from "@/server/queries/products";
 import { getCollections } from "@/server/queries/collections";
 import { getAllBlogSlugs, getBlogCategories } from "@/server/queries/blog";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://zahraluxe.com";
+  const baseUrl = "https://ahmedaliansari.com";
   const now = new Date();
 
   // Static Pages

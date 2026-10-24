@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import Link from "next/link";
@@ -56,7 +56,7 @@ export function BlogListTable({ posts }: BlogListTableProps) {
       header: "Author",
       cell: (row) => (
         <span className="text-xs text-stone-600">
-          {row.author?.name || "Zahra Luxe"}
+          {row.author?.name || "Ali Ahmed Ansari"}
         </span>
       ),
     },

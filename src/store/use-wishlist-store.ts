@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -42,7 +42,7 @@ export const useWishlistStore = create<WishlistStore>()(
       clearWishlist: () => set({ items: [] }),
     }),
     {
-      name: "zahra-wishlist-storage",
+      name: "ali-ahmed-wishlist-storage",
     },
   ),
 );

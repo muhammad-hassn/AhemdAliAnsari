@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -90,7 +90,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         <p className="font-sans text-xs uppercase tracking-widest text-stone">
           {mode === "login"
             ? "Sign in to access your orders and wishlist"
-            : "Join Zahra Luxe for bespoke privileges"}
+            : "Join Ali Ahmed Ansari for bespoke privileges"}
         </p>
       </div>
 

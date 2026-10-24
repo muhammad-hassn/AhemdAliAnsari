@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getBlogPostBySlug } from "@/server/queries/blog";
 
-export const alt = "The Atelier Journal — Zahra Luxe";
+export const alt = "The Atelier Journal — Ali Ahmed Ansari";
 export const size = {
   width: 1200,
   height: 630,
@@ -59,7 +59,7 @@ export default async function Image({
             marginBottom: "20px",
           }}
         >
-          THE ATELIER JOURNAL &bull; ZAHRA LUXE
+          THE ATELIER JOURNAL &bull; ALI AHMED ANSARI
         </div>
 
         <div

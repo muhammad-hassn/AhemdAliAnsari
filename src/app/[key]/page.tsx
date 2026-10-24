@@ -16,14 +16,14 @@ export async function generateMetadata({
 }: StaticPageProps): Promise<Metadata> {
   const { key } = await params;
   if (!ALLOWED_PAGES.includes(key)) {
-    return { title: "Page Not Found | Zahra Luxe" };
+    return { title: "Page Not Found | Ali Ahmed Ansari" };
   }
   const page = await getPageByKey(key);
   if (!page) {
-    return { title: "Page Not Found | Zahra Luxe" };
+    return { title: "Page Not Found | Ali Ahmed Ansari" };
   }
   return {
-    title: page.meta_title ?? `${page.title} | Zahra Luxe`,
+    title: page.meta_title ?? `${page.title} | Ali Ahmed Ansari`,
     description: page.meta_description ?? undefined,
   };
 }
@@ -47,7 +47,7 @@ export default async function StaticContentPage({ params }: StaticPageProps) {
         <Container size="narrow">
           <div className="space-y-3">
             <span className="font-sans text-xs uppercase tracking-[0.16em] text-stone">
-              The House of Zahra
+              The House of Ali Ahmed Ansari
             </span>
             <Heading as="h1" size="h1">
               {page.title}

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Share2, Check, Copy } from "lucide-react";
@@ -11,7 +11,7 @@ interface BlogShareButtonsProps {
 export function BlogShareButtons({ title, slug }: BlogShareButtonsProps) {
   const [copied, setCopied] = useState(false);
 
-  const url = typeof window !== "undefined" ? window.location.href : `https://zahraluxe.com/blog/${slug}`;
+  const url = typeof window !== "undefined" ? window.location.href : `https://ahmedaliansari.com/blog/${slug}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(url);
@@ -20,12 +20,12 @@ export function BlogShareButtons({ title, slug }: BlogShareButtonsProps) {
   };
 
   const shareOnWhatsApp = () => {
-    const text = encodeURIComponent(`${title} — Read on Zahra Luxe: ${url}`);
+    const text = encodeURIComponent(`${title} — Read on Ali Ahmed Ansari: ${url}`);
     window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
   };
 
   const shareOnTwitter = () => {
-    const text = encodeURIComponent(`${title} — via @ZahraLuxe`);
+    const text = encodeURIComponent(`${title} — via @AliAhmedAnsari`);
     window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}`, "_blank");
   };
 

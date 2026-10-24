@@ -9,7 +9,7 @@ interface BuildMetadataOptions {
   noindex?: boolean;
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://zahraluxe.com";
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ahmedaliansari.com";
 
 export function buildMetadata({
   title,

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import { Input } from "@/components/ui/Input";
@@ -32,7 +32,7 @@ export function AdminSeoPanel({
   onOgImageChange,
   onCanonicalUrlChange,
   onNoindexChange,
-  baseUrl = "https://zahraluxe.com",
+  baseUrl = "https://ahmedaliansari.com",
 }: AdminSeoPanelProps) {
   const titleLength = metaTitle.length;
   const descLength = metaDescription.length;
@@ -55,11 +55,11 @@ export function AdminSeoPanel({
         <div className="space-y-1">
           <p className="text-xs text-stone-500 font-mono truncate">{previewUrl}</p>
           <p className="text-base font-medium text-blue-700 hover:underline cursor-pointer truncate font-sans">
-            {metaTitle || "Page Title — Zahra Luxe Embroidered Formal Wear"}
+            {metaTitle || "Page Title — Ali Ahmed Ansari Embroidered Formal Wear"}
           </p>
           <p className="text-xs text-stone-600 line-clamp-2 leading-relaxed">
             {metaDescription ||
-              "Discover Pakistani luxury couture and hand-embroidered formal wear. Exquisite craftsmanship and timeless heritage by Zahra Luxe."}
+              "Discover Pakistani luxury couture and hand-embroidered formal wear. Exquisite craftsmanship and timeless heritage by Ali Ahmed Ansari."}
           </p>
         </div>
       </div>
@@ -108,7 +108,7 @@ export function AdminSeoPanel({
           <Input
             value={metaTitle}
             onChange={(e) => onMetaTitleChange(e.target.value)}
-            placeholder="e.g. Ivory Zardozi Raw Silk Peshwas | Zahra Luxe"
+            placeholder="e.g. Ivory Zardozi Raw Silk Peshwas | Ali Ahmed Ansari"
             maxLength={70}
           />
         </div>
@@ -157,7 +157,7 @@ export function AdminSeoPanel({
             <Input
               value={canonicalUrl || ""}
               onChange={(e) => onCanonicalUrlChange(e.target.value)}
-              placeholder="https://zahraluxe.com/original-page"
+              placeholder="https://ahmedaliansari.com/original-page"
             />
           </div>
         )}

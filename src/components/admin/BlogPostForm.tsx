@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -163,7 +163,7 @@ export function BlogPostForm({
               onChange={(e) => setAuthorId(e.target.value)}
               className="w-full h-10 px-3 border border-stone-300 bg-white text-sm text-stone-900 font-sans focus:outline-none focus:border-stone-900"
             >
-              <option value="">Zahra Luxe Editorial</option>
+              <option value="">Ali Ahmed Ansari Editorial</option>
               {authors.map((a) => (
                 <option key={a.id} value={a.id}>{a.name}</option>
               ))}

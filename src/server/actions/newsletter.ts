@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/server/rate-limit";
@@ -28,7 +28,7 @@ export async function subscribeNewsletterAction(formData: unknown) {
     }
 
     return actionOk({
-      message: "Thank you for subscribing to Zahra Luxe private previews.",
+      message: "Thank you for subscribing to Ali Ahmed Ansari private previews.",
     });
   });
 }

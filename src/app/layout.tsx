@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Cormorant_Garamond, Jost } from "next/font/google";
 import "./globals.css";
 import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION } from "@/lib/constants";
@@ -22,7 +22,7 @@ const jost = Jost({
 export const metadata: Metadata = {
   title: `${SITE_NAME} | ${SITE_TAGLINE}`,
   description: SITE_DESCRIPTION,
-  metadataBase: new URL("https://zahraluxe.com"),
+  metadataBase: new URL("https://ahmedaliansari.com"),
   openGraph: {
     title: `${SITE_NAME} | ${SITE_TAGLINE}`,
     description: SITE_DESCRIPTION,
@@ -48,8 +48,8 @@ export default async function RootLayout({
     "@context": "https://schema.org",
     "@type": "Organization",
     name: SITE_NAME,
-    url: "https://zahraluxe.com",
-    logo: "https://zahraluxe.com/images/logo.png",
+    url: "https://ahmedaliansari.com",
+    logo: "https://ahmedaliansari.com/images/logo.png",
     sameAs: [
       "https://instagram.com/ahmedaliansari.official",
       "https://www.facebook.com/share/1M1kjqDWHj/",
@@ -67,10 +67,10 @@ export default async function RootLayout({
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: SITE_NAME,
-    url: "https://zahraluxe.com",
+    url: "https://ahmedaliansari.com",
     potentialAction: {
       "@type": "SearchAction",
-      target: "https://zahraluxe.com/shop?q={search_term_string}",
+      target: "https://ahmedaliansari.com/shop?q={search_term_string}",
       "query-input": "required name=search_term_string",
     },
   };

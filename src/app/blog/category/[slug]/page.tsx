@@ -17,8 +17,8 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const name = category?.name || slug;
 
   return {
-    title: `${name} — Journal | Zahra Luxe`,
-    description: `Discover articles, crafts, and updates regarding ${name} at Zahra Luxe.`,
+    title: `${name} — Journal | Ali Ahmed Ansari`,
+    description: `Discover articles, crafts, and updates regarding ${name} at Ali Ahmed Ansari.`,
   };
 }
 

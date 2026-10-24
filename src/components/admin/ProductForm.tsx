@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -57,7 +57,7 @@ export function ProductForm({
 
   // SEO State
   const [metaTitle, setMetaTitle] = useState(
-    initialProduct?.name ? `${initialProduct.name} | Zahra Luxe` : "",
+    initialProduct?.name ? `${initialProduct.name} | Ali Ahmed Ansari` : "",
   );
   const [metaDescription, setMetaDescription] = useState(
     initialProduct?.description || "",

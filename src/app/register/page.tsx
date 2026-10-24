@@ -1,4 +1,4 @@
-import { buildMetadata } from "@/lib/seo";
+﻿import { buildMetadata } from "@/lib/seo";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { AuthForm } from "@/components/account/AuthForm";
@@ -6,7 +6,7 @@ import { Suspense } from "react";
 
 export const metadata = buildMetadata({
   title: "Create Account",
-  description: "Create an account with Zahra Luxe to save addresses, track orders, and curate your wishlist.",
+  description: "Create an account with Ali Ahmed Ansari to save addresses, track orders, and curate your wishlist.",
   path: "/register",
   noindex: true,
 });

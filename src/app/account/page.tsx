@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+﻿import { redirect } from "next/navigation";
 import { buildMetadata } from "@/lib/seo";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
@@ -12,7 +12,7 @@ import { AccountTabs } from "@/components/account/AccountTabs";
 
 export const metadata = buildMetadata({
   title: "My Account",
-  description: "View and manage your Zahra Luxe profile, couture orders, and bespoke delivery addresses.",
+  description: "View and manage your Ali Ahmed Ansari profile, couture orders, and bespoke delivery addresses.",
   path: "/account",
   noindex: true,
 });

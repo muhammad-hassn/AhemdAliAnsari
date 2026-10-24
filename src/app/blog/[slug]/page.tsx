@@ -21,11 +21,11 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 
   if (!post) {
     return {
-      title: "Story Not Found | Zahra Luxe",
+      title: "Story Not Found | Ali Ahmed Ansari",
     };
   }
 
-  const title = post.meta_title || `${post.title} | Zahra Luxe Atelier`;
+  const title = post.meta_title || `${post.title} | Ali Ahmed Ansari Atelier`;
   const description = post.meta_description || post.excerpt;
   const ogImage = post.og_image_url || post.cover_image_url;
 
@@ -73,14 +73,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     dateModified: post.updated_at || post.published_at || new Date().toISOString(),
     author: {
       "@type": "Person",
-      name: post.author?.name || "Zahra Luxe Editorial Team",
+      name: post.author?.name || "Ali Ahmed Ansari Editorial Team",
     },
     publisher: {
       "@type": "Organization",
-      name: "Zahra Luxe",
+      name: "Ali Ahmed Ansari",
       logo: {
         "@type": "ImageObject",
-        url: "https://zahraluxe.com/logo.png",
+        url: "https://ahmedaliansari.com/logo.png",
       },
     },
   };
@@ -144,7 +144,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 )}
                 <div>
                   <p className="text-xs font-medium text-stone-900 uppercase tracking-wider">
-                    {post.author?.name || "Zahra Luxe Editorial"}
+                    {post.author?.name || "Ali Ahmed Ansari Editorial"}
                   </p>
                   {post.author?.bio && (
                     <p className="text-[11px] text-stone-500 line-clamp-1">{post.author.bio}</p>

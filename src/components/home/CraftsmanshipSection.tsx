@@ -1,4 +1,4 @@
-import { CRAFTSMANSHIP_POINTS } from "@/lib/constants";
+﻿import { CRAFTSMANSHIP_POINTS } from "@/lib/constants";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Heading } from "@/components/ui/Heading";
@@ -23,7 +23,7 @@ export function CraftsmanshipSection() {
 
             <Reveal delay={0.1}>
               <p className="text-sm sm:text-base text-stone font-sans font-light leading-relaxed">
-                In an era of fleeting fast fashion, Zahra Luxe preserves the slow, deliberate rhythm of artisanal needlecraft. From the antique zardozi wires spun on traditional wooden looms to hand-cut mirror embellishments, every garment is an enduring work of cultural pride.
+                In an era of fleeting fast fashion, Ali Ahmed Ansari preserves the slow, deliberate rhythm of artisanal needlecraft. From the antique zardozi wires spun on traditional wooden looms to hand-cut mirror embellishments, every garment is an enduring work of cultural pride.
               </p>
             </Reveal>
 
