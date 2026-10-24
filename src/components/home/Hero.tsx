@@ -115,7 +115,7 @@ export function Hero({ slides }: HeroProps) {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       style={isDesktop ? undefined : { height: heroHeight, minHeight: heroHeight }}
-      className="relative w-full overflow-hidden bg-ink text-ivory select-none sm:h-[480px] md:h-[520px] lg:h-[560px]"
+      className="relative w-full overflow-hidden bg-ink text-ivory select-none sm:h-[480px] md:h-[490px] lg:h-[512px]"
     >
       {/* Background Slides Cross-Fade */}
       <AnimatePresence mode="wait">
