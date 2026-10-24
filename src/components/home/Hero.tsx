@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
@@ -26,6 +26,8 @@ export function Hero({ slides }: HeroProps) {
   const [current, setCurrent] = useState(0);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchEndX, setTouchEndX] = useState<number | null>(null);
+  const [heroHeight, setHeroHeight] = useState<string>("calc(100svh - 5.5rem)");
+  const heroRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
 
   const nextSlide = useCallback(() => {
@@ -41,6 +43,37 @@ export function Hero({ slides }: HeroProps) {
     const interval = setInterval(nextSlide, 6500);
     return () => clearInterval(interval);
   }, [slides.length, nextSlide]);
+
+  // Dynamically calculate exact remaining viewport height so the Hero fills
+  // 100% of the screen down to the bottom edge, keeping subsequent sections below the fold.
+  useEffect(() => {
+    const updateHeight = () => {
+      if (heroRef.current) {
+        const rect = heroRef.current.getBoundingClientRect();
+        const topDistance = rect.top + window.scrollY;
+        const availableHeight = window.innerHeight - topDistance;
+        if (availableHeight > 320) {
+          setHeroHeight(`${availableHeight}px`);
+        }
+      }
+    };
+
+    updateHeight();
+    window.addEventListener("resize", updateHeight);
+
+    let observer: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== "undefined") {
+      observer = new ResizeObserver(() => {
+        updateHeight();
+      });
+      observer.observe(document.body);
+    }
+
+    return () => {
+      window.removeEventListener("resize", updateHeight);
+      if (observer) observer.disconnect();
+    };
+  }, []);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchEndX(null);
@@ -68,10 +101,12 @@ export function Hero({ slides }: HeroProps) {
 
   return (
     <div
+      ref={heroRef}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      className="relative w-full overflow-hidden bg-ink text-ivory select-none h-[calc(100svh-3.75rem)] min-h-[580px] max-h-[920px] sm:h-auto sm:aspect-[16/9] sm:min-h-[520px] sm:max-h-[820px] lg:max-h-[88vh]"
+      style={{ height: heroHeight, minHeight: heroHeight }}
+      className="relative w-full overflow-hidden bg-ink text-ivory select-none"
     >
       {/* Background Slides Cross-Fade */}
       <AnimatePresence mode="wait">

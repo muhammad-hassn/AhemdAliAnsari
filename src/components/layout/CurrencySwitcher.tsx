@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { useCurrencyStore } from "@/store/use-currency-store";
 import type { CurrencyRate } from "@/types";
 import {
@@ -10,6 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/Select";
+
+const emptySubscribe = () => () => {};
 
 interface CurrencySwitcherProps {
   rates?: CurrencyRate[];
@@ -22,6 +24,12 @@ export function CurrencySwitcher({ rates, className }: CurrencySwitcherProps) {
   const setRates = useCurrencyStore((state) => state.setRates);
   const storedRates = useCurrencyStore((state) => state.rates);
 
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
+
   useEffect(() => {
     if (rates && rates.length > 0) {
       setRates(rates);
@@ -29,11 +37,12 @@ export function CurrencySwitcher({ rates, className }: CurrencySwitcherProps) {
   }, [rates, setRates]);
 
   const activeRates = rates && rates.length > 0 ? rates : storedRates;
+  const displayCurrencyCode = mounted ? currentCurrency.code : "PKR";
 
   return (
-    <div className={className}>
+    <div className={className} suppressHydrationWarning>
       <Select
-        value={currentCurrency.code}
+        value={displayCurrencyCode}
         onValueChange={(code) => {
           const selected = activeRates.find((r) => r.code === code);
           if (selected) {
@@ -41,9 +50,12 @@ export function CurrencySwitcher({ rates, className }: CurrencySwitcherProps) {
           }
         }}
       >
-        <SelectTrigger className="h-8 border-none bg-transparent px-2 py-0 text-xs font-sans uppercase tracking-[0.1em] text-ink focus:ring-0">
-          <SelectValue placeholder={currentCurrency.code}>
-            {currentCurrency.code}
+        <SelectTrigger
+          suppressHydrationWarning
+          className="h-8 border-none bg-transparent px-2 py-0 text-xs font-sans uppercase tracking-[0.1em] text-ink focus:ring-0"
+        >
+          <SelectValue placeholder={displayCurrencyCode}>
+            {displayCurrencyCode}
           </SelectValue>
         </SelectTrigger>
         <SelectContent align="end">

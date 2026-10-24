@@ -14,6 +14,7 @@ export const SelectTrigger = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Trigger
     ref={ref}
+    suppressHydrationWarning
     className={cn(
       "flex h-12 w-full items-center justify-between border border-hairline bg-transparent px-4 py-2 text-sm text-ink placeholder:text-stone focus:outline-none focus:border-ink disabled:cursor-not-allowed disabled:opacity-50",
       className,
