@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   MessageSquare,
   UploadCloud,
@@ -33,11 +34,15 @@ export function OrderDetailView({
   whatsappNumber,
   accessToken,
 }: OrderDetailViewProps) {
+  const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [txnRef, setTxnRef] = useState("");
   const [proofNotes, setProofNotes] = useState("");
   const [submittingProof, setSubmittingProof] = useState(false);
+  const [currentPaymentStatus, setCurrentPaymentStatus] = useState<string>(
+    order.payment_status,
+  );
   const [proofSuccess, setProofSuccess] = useState(
     order.payment_status === "proof_submitted",
   );
@@ -126,8 +131,10 @@ export function OrderDetailView({
       const data = await res.json();
 
       if (res.ok && data.success) {
+        setCurrentPaymentStatus("proof_submitted");
         setProofSuccess(true);
         handleRemoveFile();
+        router.refresh();
       } else {
         setProofError(data.error || "Failed to submit payment verification. Please try again.");
       }
@@ -185,7 +192,7 @@ export function OrderDetailView({
           </Badge>
           <span className="text-xs text-stone">
             Payment:{" "}
-            <strong className="text-ink uppercase">{order.payment_status.replace(/_/g, " ")}</strong>
+            <strong className="text-ink uppercase">{currentPaymentStatus.replace(/_/g, " ")}</strong>
           </span>
         </div>
       </div>
@@ -290,23 +297,71 @@ export function OrderDetailView({
               )}
 
               {/* Verification awaiting review banner */}
-              {proofSuccess && order.payment_status === "proof_submitted" ? (
+              {(proofSuccess || currentPaymentStatus === "proof_submitted") ? (
                 <div className="space-y-4">
-                  <div className="p-4 bg-sky-50 border border-sky-200 text-sky-950 text-xs flex items-start gap-3">
-                    <Clock className="h-5 w-5 text-sky-700 shrink-0 mt-0.5" />
-                    <div className="space-y-1">
-                      <p className="font-medium text-sky-950">
-                        Payment Receipt Submitted — Awaiting Verification
-                      </p>
-                      <p className="text-sky-800 leading-relaxed">
-                        Your payment receipt and details have been submitted and are currently being verified by our accounts desk.
-                        Our team will verify the bank transaction and update your order status.
-                      </p>
-                      {latestProof?.transaction_reference && (
-                        <p className="text-[11px] font-mono text-sky-900 pt-1">
-                          Transaction Reference: {latestProof.transaction_reference}
+                  <div className="p-5 bg-sky-50 border border-sky-200 text-sky-950 text-xs space-y-3">
+                    <div className="flex items-start gap-3">
+                      <Clock className="h-5 w-5 text-sky-700 shrink-0 mt-0.5" />
+                      <div className="space-y-1">
+                        <p className="font-serif text-base text-sky-950 font-normal">
+                          Payment Receipt Submitted — Awaiting Verification
                         </p>
-                      )}
+                        <p className="text-sky-800 leading-relaxed">
+                          Your payment receipt has been submitted and is currently being verified by our accounts desk.
+                          Once verified, your order status will automatically update to <strong>Confirmed</strong> and move to atelier tailoring.
+                        </p>
+                        {latestProof?.transaction_reference && (
+                          <p className="text-[11px] font-mono text-sky-900 pt-1">
+                            Transaction Reference: {latestProof.transaction_reference}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* How customer can track status */}
+                    <div className="pt-3 border-t border-sky-200/60 space-y-2 text-sky-900">
+                      <p className="font-medium text-[11px] uppercase tracking-wider text-sky-950">
+                        How to monitor your order progress:
+                      </p>
+                      <ul className="list-disc list-inside space-y-1 text-[11px] text-sky-800 leading-relaxed">
+                        <li>
+                          <strong>Order Status:</strong> You will see the timeline below update from <em>Pending</em> to <em>Confirmed</em>, <em>Shipped</em> (with courier tracking), and <em>Delivered</em>.
+                        </li>
+                        <li>
+                          <strong>Live Tracking Page:</strong> You can revisit this link anytime, or go to{" "}
+                          <Link href="/track" className="underline font-medium hover:text-ink">
+                            Track Order
+                          </Link>{" "}
+                          using Order #{order.order_number} and your email.
+                        </li>
+                        <li>
+                          <strong>WhatsApp Assistance:</strong> For urgent updates, message our atelier team directly with your Order #{order.order_number}.
+                        </li>
+                      </ul>
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="pt-2 flex flex-wrap gap-2.5">
+                      <Link
+                        href="/"
+                        className="inline-flex items-center justify-center px-4 py-2 bg-ink text-ivory text-xs uppercase tracking-wider hover:bg-stone transition-colors font-medium"
+                      >
+                        Return to Home
+                      </Link>
+                      <Link
+                        href="/shop"
+                        className="inline-flex items-center justify-center px-4 py-2 bg-white border border-stone-light text-ink text-xs uppercase tracking-wider hover:bg-stone-50 transition-colors font-medium"
+                      >
+                        Continue Shopping
+                      </Link>
+                      <a
+                        href={waLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center px-4 py-2 bg-emerald-800 text-white text-xs uppercase tracking-wider hover:bg-emerald-900 transition-colors font-medium"
+                      >
+                        Chat on WhatsApp
+                      </a>
                     </div>
                   </div>
 
