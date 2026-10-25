@@ -1,6 +1,6 @@
 import "server-only";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/server/rate-limit";
 import { getSiteSettings } from "@/server/queries/settings";
 import type { ShippingRate, PaymentMethod, Order } from "@/types";
@@ -115,7 +115,21 @@ export async function getOrderByNumberAndToken(
   orderNumber: string,
   token?: string | null,
 ): Promise<Order | null> {
-  const supabase = await createClient();
+  let userId: string | undefined;
+
+  if (!token) {
+    const authClient = await createClient();
+    const {
+      data: { user },
+    } = await authClient.auth.getUser();
+
+    if (!user) return null;
+    userId = user.id;
+  }
+
+  // Guest orders are not visible through the public RLS policy. Use the
+  // service client only after constraining the lookup by the access token.
+  const supabase = createServiceClient();
 
   let query = supabase
     .from("orders")
@@ -125,12 +139,8 @@ export async function getOrderByNumberAndToken(
   if (token) {
     query = query.eq("access_token", token);
   } else {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) return null;
-    query = query.eq("user_id", user.id);
+    if (!userId) return null;
+    query = query.eq("user_id", userId);
   }
 
   const { data, error } = await query.maybeSingle();

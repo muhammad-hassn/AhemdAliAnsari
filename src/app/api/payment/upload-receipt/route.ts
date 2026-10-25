@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
 import { revalidatePath, revalidateTag } from "next/cache";
 
 export const dynamic = "force-dynamic";
@@ -31,16 +31,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!file || !(file instanceof File)) {
+    const hasFile = file instanceof File;
+    if (!hasFile && !transactionReference?.trim()) {
       return NextResponse.json(
-        { success: false, error: "No receipt file was provided." },
+        { success: false, error: "Please provide a receipt file or transaction reference." },
+        { status: 400 },
+      );
+    }
+    if (file && !hasFile) {
+      return NextResponse.json(
+        { success: false, error: "Invalid receipt file." },
         { status: 400 },
       );
     }
 
-    // 1. Verify order access
-    const supabase = await createClient();
-    const { data: order, error: orderErr } = await supabase
+    // 1. Verify order access by the unguessable order access token.
+    const serviceClient = createServiceClient();
+    const { data: order, error: orderErr } = await serviceClient
       .from("orders")
       .select("id, status, payment_status, total_pkr, deposit_amount_pkr")
       .eq("order_number", orderNumber)
@@ -54,54 +61,56 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. Validate file type and extension
-    const mimeType = file.type.toLowerCase();
-    const ext = file.name.split(".").pop()?.toLowerCase() || "";
+    let destinationPath: string | null = null;
+    if (hasFile) {
+      // 2. Validate file type and extension
+      const mimeType = file.type.toLowerCase();
+      const ext = file.name.split(".").pop()?.toLowerCase() || "";
 
-    if (!ALLOWED_MIME_TYPES.has(mimeType) || !ALLOWED_EXTENSIONS.has(ext)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Invalid file format. Only JPG, PNG, WebP image or PDF receipt files are supported.",
-        },
-        { status: 400 },
-      );
-    }
+      if (!ALLOWED_MIME_TYPES.has(mimeType) || !ALLOWED_EXTENSIONS.has(ext)) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Invalid file format. Only JPG, PNG, WebP image or PDF receipt files are supported.",
+          },
+          { status: 400 },
+        );
+      }
 
-    // 3. Validate file size
-    if (file.size > MAX_FILE_SIZE_BYTES) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Receipt file size exceeds the 5MB limit (current: ${(file.size / (1024 * 1024)).toFixed(1)}MB).`,
-        },
-        { status: 400 },
-      );
-    }
+      // 3. Validate file size
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Receipt file size exceeds the 5MB limit (current: ${(file.size / (1024 * 1024)).toFixed(1)}MB).`,
+          },
+          { status: 400 },
+        );
+      }
 
-    // 4. Generate clean, safe unique path
-    const randomSuffix = crypto.randomUUID();
-    const destinationPath = `orders/${order.id}/${Date.now()}-${randomSuffix}.${ext}`;
-    const buffer = Buffer.from(await file.arrayBuffer());
+      // 4. Generate clean, safe unique path
+      const randomSuffix = crypto.randomUUID();
+      destinationPath = `orders/${order.id}/${Date.now()}-${randomSuffix}.${ext}`;
+      const buffer = Buffer.from(await file.arrayBuffer());
 
-    // 5. Upload to private Supabase Storage bucket 'payment-proofs'
-    const serviceClient = createServiceClient();
-    const { error: uploadError } = await serviceClient.storage
-      .from("payment-proofs")
-      .upload(destinationPath, buffer, {
-        contentType: file.type,
-        upsert: false,
-      });
+      // 5. Upload to private Supabase Storage bucket 'payment-proofs'
+      const { error: uploadError } = await serviceClient.storage
+        .from("payment-proofs")
+        .upload(destinationPath, buffer, {
+          contentType: file.type,
+          upsert: false,
+        });
 
-    if (uploadError) {
-      return NextResponse.json(
-        { success: false, error: "Failed to upload receipt to secure storage. Please try again." },
-        { status: 500 },
-      );
+      if (uploadError) {
+        return NextResponse.json(
+          { success: false, error: "Failed to upload receipt to secure storage. Please try again." },
+          { status: 500 },
+        );
+      }
     }
 
     // 6. Record in payment_proofs table
-    const { data: proofData } = await serviceClient
+    const { data: proofData, error: proofError } = await serviceClient
       .from("payment_proofs")
       .insert({
         order_id: order.id,
@@ -114,8 +123,18 @@ export async function POST(req: NextRequest) {
       .select("id")
       .single();
 
+    if (proofError || !proofData) {
+      if (destinationPath) {
+        await serviceClient.storage.from("payment-proofs").remove([destinationPath]);
+      }
+      return NextResponse.json(
+        { success: false, error: "Failed to record payment verification. Please try again." },
+        { status: 500 },
+      );
+    }
+
     // 7. Update order payment_status to 'proof_submitted'
-    await serviceClient
+    const { error: updateError } = await serviceClient
       .from("orders")
       .update({
         payment_status: "proof_submitted",
@@ -123,12 +142,25 @@ export async function POST(req: NextRequest) {
       })
       .eq("id", order.id);
 
+    if (updateError) {
+      await serviceClient.from("payment_proofs").delete().eq("id", proofData.id);
+      if (destinationPath) {
+        await serviceClient.storage.from("payment-proofs").remove([destinationPath]);
+      }
+      return NextResponse.json(
+        { success: false, error: "Failed to update order payment status. Please try again." },
+        { status: 500 },
+      );
+    }
+
     // 8. Add event to timeline
     const refText = transactionReference ? ` (Ref: ${transactionReference.trim()})` : "";
     await serviceClient.from("order_events").insert({
       order_id: order.id,
       status: order.status,
-      note: `Payment receipt file (${file.name}) and transaction reference${refText} uploaded by patron.`,
+      note: hasFile
+        ? `Payment receipt file (${file.name}) and transaction reference${refText} uploaded by patron.`
+        : `Payment transaction reference${refText} submitted by patron.`,
     });
 
     revalidatePath(`/order/${orderNumber}`);
